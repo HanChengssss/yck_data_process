@@ -20,10 +20,14 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/yck_data_process/process/auto_model_process.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1YsB6qARj23j0fre7YzLJB69DpW" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -181,7 +185,7 @@
       <updated>1583222425807</updated>
       <workItem from="1583721251012" duration="9518000" />
       <workItem from="1583738299711" duration="10424000" />
-      <workItem from="1583808069111" duration="18617000" />
+      <workItem from="1583808069111" duration="19592000" />
     </task>
     <servers />
   </component>
