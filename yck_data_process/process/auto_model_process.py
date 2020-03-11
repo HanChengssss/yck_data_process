@@ -12,11 +12,21 @@ from multiprocessing import Queue, Process
 
 # 单个字段处理基类
 class ModelProcessBase(metaclass=ABCMeta):
+
     '''
     单个字段处理基类
     '''
+    __instanse = None
+
+    def __new__(cls):
+        if not cls.__instanse:
+            cls.__instanse = super().__new__(cls)
+        return cls.__instanse
+
+
     @abstractmethod
     def _process_filed(self, filed):
+        print("the _process_filed from ModelProcessBase")
         pass
 
     @abstractmethod
@@ -27,6 +37,7 @@ class ModelProcessBase(metaclass=ABCMeta):
     def process_datas(self, dataList, filed_name, logDriver, table):
         for d in dataList:
             ret = self._process_filed(d.get(filed_name))
+            # print(filed_name, "=========", ret)
             if not ret:
                 logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, d.get(filed_name), table))
             else:
@@ -39,6 +50,7 @@ class modelYearProcess(ModelProcessBase):
     '''
     车型库年款字段处理处理模块
     '''
+
     def standard_test(self, filed):
         filed = str(filed)
         standardPattern = re.compile(r'\d+款')
@@ -55,7 +67,7 @@ class modelYearProcess(ModelProcessBase):
         if ret:
             return filed
         Intpatter = re.compile(r'\d+')
-        Intret = Intpatter.match(str(filed)).group() if Intpatter.match(str(filed)) else None
+        Intret = Intpatter.search(str(filed)).group() if Intpatter.search(str(filed)) else None
         if Intret:
             if len(Intret) == 4:
                 filed = str(Intret) + "款"
@@ -108,6 +120,7 @@ class GearboxProcess(ModelProcessBase):
             return r4
         return None
 
+
 # 车型库处理模块
 class AutoModelProcess():
     '''
@@ -118,8 +131,9 @@ class AutoModelProcess():
     def process_AutoModel_datas(dataDicts, logDriver):
         dataList = dataDicts.get("dataList")
         table = dataDicts.get("table")
-        modelYearProcess().process_datas(dataList=dataList, filed_name="model_name", logDriver=logDriver, table=table)
+        modelYearProcess().process_datas(dataList=dataList, filed_name="model_year", logDriver=logDriver, table=table)
         GearboxProcess().process_datas(dataList=dataList, filed_name="gearbox", logDriver=logDriver, table=table)
+
 
 # 管理和加载所有类型数据的处理方法
 class ProcessManage():
@@ -145,9 +159,8 @@ class ProcessManage():
                 AutoModelProcess.process_AutoModel_datas(dataDicts=dataDic, logDriver=logDriver)
             elif dataDic.get("type") == "settings":
                 pass
+            print(dataDic)
             outputQueue.put(dataDic)
-
-
 
 
 if __name__ == '__main__':
@@ -158,7 +171,15 @@ if __name__ == '__main__':
         "type": "auto_model",
         "dataList": [
             {
-                "model_name": None,
+                "model_year": "2049 年",
+                "gearbox": "自动挡",
+            },
+            {
+                "model_year": "xx2019 ",
+                "gearbox": "电动xxs",
+            },
+            {
+                "model_year": None,
                 "gearbox": None,
             }
         ]
@@ -168,10 +189,9 @@ if __name__ == '__main__':
     p1 = Process(target=ProcessManage.process_data, args=((q1, q2)))
     p1.start()
     p1.join()
-    print(dataDict)
-
-
-
+    # py = modelYearProcess()
+    # filed = py._process_filed(" 2049 年")
+    # print(filed)
 
 
 

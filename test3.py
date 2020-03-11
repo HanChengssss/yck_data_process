@@ -10,17 +10,25 @@ class MyBeautifulGirl(object):
 
     def __new__(cls, name):
         if not cls.__instance:
-            MyBeautifulGirl.__instance = super().__new__(cls)
-            return cls.__instance
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
 
-    def __init__(self, name):
-        if not self.__instance:
-            self.__name = name
-            print("遇见" + name + ", 我一见钟情！")
-            MyBeautifulGirl.__isFirstInit = True
-        else:
-            print("遇见" + name + "，我置若罔闻！")
+    # def __init__(self, name):
+    #     if not self.__instance:
+    #         self.__name = name
+    #         print("遇见" + name + ", 我一见钟情！")
+    #         MyBeautifulGirl.__isFirstInit = True
+    #     else:
+    #         print("遇见" + name + "，我置若罔闻！")
+    #
+    # def showMyHeart(self):
+    #     print(self.__name + "就我心中的唯一！")
 
-    def showMyHeart(self):
-        print(self.__name + "就我心中的唯一！")
 
+if __name__ == '__main__':
+    A = MyBeautifulGirl("a")
+    B = MyBeautifulGirl("b")
+    # print(id(A))
+    # print(id(B))
+    print(type(A))
+    print(type(B))
