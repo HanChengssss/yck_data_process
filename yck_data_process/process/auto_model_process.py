@@ -7,7 +7,7 @@ from abc import ABCMeta, abstractmethod
 from yck_data_process.logingDriver import Logger
 import os
 from multiprocessing import Queue, Process
-
+from test6 import fn_timer
 
 
 # 单个字段处理基类
@@ -136,6 +136,7 @@ class AutoModelProcess():
 
 
 # 管理和加载所有类型数据的处理方法
+@fn_timer
 class ProcessManage():
 
     @staticmethod
@@ -159,6 +160,15 @@ class ProcessManage():
                 AutoModelProcess.process_AutoModel_datas(dataDicts=dataDic, logDriver=logDriver)
             elif dataDic.get("type") == "settings":
                 pass
+            elif dataDic.get("type") == "modelPrice":
+                pass
+            elif dataDic.get("type") == "sales":
+                pass
+            # todo 将处理过的数据打上一个标识，检验在多线程模式下数据是否会被多次修改。
+            if dataDic.get("sign"):
+                logDriver.logger.error(msg="This data has been processed !")
+            else:
+                dataDic['sign'] = True
             print(dataDic)
             outputQueue.put(dataDic)
 
