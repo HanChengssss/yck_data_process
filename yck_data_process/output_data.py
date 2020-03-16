@@ -21,6 +21,7 @@ class OutPutBase():
     #     pass
     pass
 
+
 class OutPutMysql():
 
     def data_output(self, outputQueue):

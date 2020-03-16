@@ -1,152 +1,148 @@
-# !/usr/bin/env python
-# -*-encoding: utf-8-*-
-# author:LiYanwei
-# version:0.1
-import pymysql
-from yck_data_process.settings import *
-from abc import ABCMeta, abstractmethod
-from yck_data_process.logingDriver import *
-from multiprocessing import Queue, Process
-import time
+import pymongo
+from pymongo import MongoClient
+import random
+from yck_data_process.settings import auto_model_tables
+from datetime import datetime
+from multiprocessing import Queue
 
-class GetDataBase(metaclass=ABCMeta):
-    pass
-    # def __init__(self):
-    #     '''
-    #     加载数据库配置，连接数据库
-    #     '''
-    #     pass
+class RandomProdictData():
+    __instance = None
 
-    # def set_table(self, table):
-    #     '''
-    #     设置查询表名称
-    #     :param table: String
-    #     :return: None
-    #     '''
-    #     self.table = table
-    #
-    # def set_tables(self, tables):
-    #     '''
-    #     设置查询表名称列表
-    #     :param tables: List
-    #     :return: None
-    #     '''
-    #     self.tables = tables
-    #
-    # def set_filed(self, filed):
-    #     self.filed = filed
+    def __new__(cls, coll_name):
+        if not cls.__instance:
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
 
-    # @abstractmethod
-    # def get_table_data(self, table=None):
-    #     '''
-    #     获取表数据
-    #     :param table:String
-    #     :return:dataList
-    #     '''
-    #     pass
-    #
-    # @abstractmethod
-    # def get_tableList_data(self, tables=None):
-    #     '''
-    #     获取多表数据
-    #     :param tables: List
-    #     :return:dataList
-    #     '''
-    #     pass
-
-
-class GetTestMysqlData():
-
-    def get_table_data(self, table, conn, query_sql, filed):
-        conn.ping()
-        cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
-        cursor.execute(query_sql.format(filed=filed, table=table))
-        records = cursor.fetchall()
-        conn.close()
-        datasDic = {}
-        datasDic["table"] = table
-        datasDic["dataList"] = records
-        cursor.close()
-        return datasDic
-
-    def get_tableList_data(self, tables, dbparams, filed, query_all_data):
-        conn = pymysql.connect(dbparams)
-        if query_all_data:
-            query_sql = "SELECT {filed} FROM {table};"
+    def __init__(self, coll_name):
+        '''
+        获取一个集合对象，如果不存在则创建一个
+        :param coll_name:
+        '''
+        self.client = MongoClient('localhost', 27017)
+        self.db = self.client.get_database("test")
+        collList = self.db.collection_names()
+        if coll_name not in collList:
+            self.collection = self.db.create_collection(name=coll_name)  # 创建一个集合
         else:
-            query_sql = "SELECT {filed} FROM {table} ORDER BY RAND() LIMIT 1000;"
-        conn.ping()
-        datasDic = dict()
-        # cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-        for table in tables:
-            # print(table)
-            try:
-                # cursor.execute(self.query_sql.format(filed=self.filed, table=table))
-                # records = cursor.fetchall()
-                # datasDic[table] = records
-                dDic = self.get_table_data(table=table, conn=conn, query_sql=query_sql, filed=filed)
-                datasDic.update(dDic)
-            except Exception as e:
-                pass
-                # self.logDriver.logger.error("from table {} raise error {}".format(table, str(e)))
+            self.collection = self.db.get_collection(name=coll_name)  # 获取一个集合对象
 
-        return datasDic
+    def insert_data(self, dataNum):
+        '''
+        插入随机创建的数据
+        :return:
+        '''
+        typeList = ["auto_model"]
+        modelyearList = ["xx2012ss", "2098 n ", "2019", "1998 款x"]
+        grarBoxList = ["xx自动ss", "半自动 n ", "全自动形式上", "电动sx马s达"]
+        datas = []
+        for i in range(dataNum):
+            dataDict = dict()
+            # dataDict = deepcopy(dataDict)
+            dataDict["table"] = random.choice(auto_model_tables)
+            dataDict["type"] = random.choice(typeList)
+            dataDict["isProcess"] = False
+            dataDict["add_time"] = datetime.today()
+            dataDict["update_time"] = datetime.today()
+            dataDict["dataList"] = []
+            for i in range(1000):
+                dataDict["dataList"].append(
+                    {"model_year": random.choice(modelyearList), "gearbox": random.choice(grarBoxList)})
+            datas.append(dataDict)
+        ret = self.collection.insert_many(datas)
+        # ret.acknowledged 布尔值
+        # ret.inserted_ids 插入数据的id列表
 
-    def put_data_to_query(self, tables, dbparams, filed, query_all_data, q):
-        logDriver = Logger("D:\YCK\代码\yck_data_process\yck_data_process\log_dir\GetTestMysqlData.log", level='warning')
-        # cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-        conn = pymysql.connect(**dbparams)
-        if query_all_data:
-            query_sql = "SELECT {filed} FROM {table};"
+
+
+class queryMongoData():
+    __instance = None
+
+    def __new__(cls, coll_name):
+        if not cls.__instance:
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
+
+    def __init__(self, coll_name):
+        self.client = MongoClient('localhost', 27017)
+        self.db = self.client.get_database("test")
+        collList = self.db.collection_names()
+        if coll_name not in collList:
+            collParm = dict(
+                capped=True,
+                size=1024*1024*50,
+                max=1000000
+            )
+            self.collection = self.db.create_collection(name=coll_name, **collParm)  # 创建一个集合
         else:
-            query_sql = "SELECT {filed} FROM {table} ORDER BY RAND() LIMIT 1000;"
-        for table in tables:
-            print(table)
-            try:
-                dDic = self.get_table_data(table=table, conn=conn, query_sql=query_sql, filed=filed)
-                q.put(dDic)
-                print("==========put data_query")
-                # print(dDic)
-            except Exception as e:
-                print(e)
-                logDriver.logger.error("from table {} raise error {}".format(table, str(e)))
-        conn.close()
-        q.put("end")
-        print("p1 process end!")
+            self.collection = self.db.get_collection(name=coll_name)  # 获取一个集合对象
 
-def read_queue(q):
-    while True:
-        print(q.get())
-        time.sleep(0.2)
+    def find_data(self):
+        '''
+        查询mongodb中所有未处理的数据
+        取出后将isProcess字段更新为True
+        :return:
+        '''
+        cursor = self.collection.find({"isProcess": False})
+        idList = []
+        dataList = []
+        for data in cursor:
+            idList.append(data["_id"])
+            dataList.append(data)
+        ret = self.collection.update_many({"_id": {'$in': idList}, "isProcess": False}, {'$set': {"isProcess": True}})
+        print(ret.modified_count)
+        # self.client.close()
+        return dataList
 
+    def chongzhi(self):
+        '''
+        重置mongodb中的书数据状态
+        取出后将isProcess字段更新为False
+        :return:
+        '''
+        cursor = self.collection.find({"isProcess": True})
+        idList = []
+        dataList = []
+        for data in cursor:
+            idList.append(data["_id"])
+            dataList.append(data)
+        ret = self.collection.update_many({"_id": {'$in': idList}, "isProcess": True}, {'$set': {"isProcess": False}})
+        print(ret.modified_count)
+        # self.client.close()
+        return dataList
+
+class ProductQueue():
+    '''
+    将数据放入队列中
+    '''
+
+    def putDataToQueue(self, dataList):
+        inputQueue = Queue()
+        for data in dataList:
+            inputQueue.put(data)
+        return inputQueue
+
+
+class InputDataMange():
+    '''
+    返回数据队列
+    '''
+    def run(self):
+        try:
+            self.qm = queryMongoData("autoModelCollection")
+            self.pq = ProductQueue()
+            dataList = self.qm.find_data()
+            inputQueue = self.pq.putDataToQueue(dataList)
+            return inputQueue
+        finally:
+            print("inputQueue finish")
 
 
 if __name__ == '__main__':
-    q = Queue()
-
-    dbparams = dict(
-                host="192.168.0.10",
-                port=3306,
-                user="root",
-                passwd="000000",
-                db="yck-data-center",
-                charset="utf8",
-            )
-
-    g = GetTestMysqlData()
-    # g.put_data_to_query()
-    # print(g.data_query.get())
-    p1 = Process(target=g.put_data_to_query, args=(auto_model_tables, dbparams, "gearbox", True, q,))
-    r1 = Process(target=read_queue, args=(q,))
-    r2 = Process(target=read_queue, args=(q,))
-    p1.start()
-    r1.start()
-    r2.start()
-    p1.join()
-    r1.terminate()
-    r2.terminate()
-
-    print('Child process end.')
-
-
+    # R = RandomProdictData(coll_name='autoModelCollection')
+    # R.insert_data(dataNum=1000)
+    q = queryMongoData("autoModelCollection")
+    # q.find_data()
+    q.chongzhi()
+    In = InputDataMange()
+    In.run()
 
