@@ -38,7 +38,7 @@ class RandomProdictData():
         for i in range(dataNum):
             dataDict = dict()
             # dataDict = deepcopy(dataDict)
-            dataDict["table"] = random.choice(auto_model_tables)
+            dataDict["table"] = 'autoModelTest'
             dataDict["type"] = random.choice(typeList)
             dataDict["isProcess"] = False
             dataDict["add_time"] = datetime.today()
@@ -78,18 +78,13 @@ class queryMongoData():
 
     def find_data(self):
         '''
-        查询mongodb中所有未处理的数据
-        取出后将isProcess字段更新为True
+        查询mongodb中所有isProcess为FALSE的数据
         :return:
         '''
         cursor = self.collection.find({"isProcess": False})
-        idList = []
         dataList = []
         for data in cursor:
-            idList.append(data["_id"])
             dataList.append(data)
-        ret = self.collection.update_many({"_id": {'$in': idList}, "isProcess": False}, {'$set': {"isProcess": True}})
-        print(ret.modified_count)
         # self.client.close()
         return dataList
 
@@ -116,8 +111,7 @@ class ProductQueue():
     将数据放入队列中
     '''
 
-    def putDataToQueue(self, dataList):
-        inputQueue = Queue()
+    def putDataToQueue(self, dataList, inputQueue):
         for data in dataList:
             inputQueue.put(data)
         return inputQueue
@@ -127,23 +121,23 @@ class InputDataMange():
     '''
     返回数据队列
     '''
-    def run(self):
+    def run(self, inputQueue):
         try:
             self.qm = queryMongoData("autoModelCollection")
             self.pq = ProductQueue()
             dataList = self.qm.find_data()
-            inputQueue = self.pq.putDataToQueue(dataList)
-            return inputQueue
+            inputQueue = self.pq.putDataToQueue(dataList, inputQueue)
+            # return inputQueue
         finally:
             print("inputQueue finish")
 
 
 if __name__ == '__main__':
-    # R = RandomProdictData(coll_name='autoModelCollection')
-    # R.insert_data(dataNum=1000)
-    q = queryMongoData("autoModelCollection")
+    R = RandomProdictData(coll_name='autoModelCollection')
+    R.insert_data(dataNum=1000)
+    # q = queryMongoData("autoModelCollection")
     # q.find_data()
-    q.chongzhi()
-    In = InputDataMange()
-    In.run()
+    # q.chongzhi()
+    # In = InputDataMange()
+    # In.run()
 

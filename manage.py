@@ -35,88 +35,49 @@ class TestManage(ManageBase):
     def __init__(self):
         super().__init__()
         '''
-        初始化各个模块和创建共享队列
+        初始化各个模块
         '''
-        self.inputQueue = Queue()
-        self.outputQueue = Queue()
-        self.g = GetTestMysqlData()
-        self.p = ProcessManage()
-        self.o = OutPutMysql()
+        # 创建inputdata对象
+        self.inputData = InputDataMange()
+
 
     def create_query(self):
         return Queue()
 
-    def long_time_task(self, name):
-        print('Run task %s (%s)...' % (name, os.getpid()))
-        start = time.time()
-        time.sleep(random.random() * 3)
-        end = time.time()
-        print("Task %s runs %0.2f seconds" % (name, (end - start)))
+    def create_consumer(self, inputQueue, outputQueue):
+        # 创建processData对象
+        self.processData = ProcessManage()
+        # 创建outputData对象
+        self.outputData = OutPutDataManage()
+        self.processData.process_data(inputQueue, outputQueue)
+        self.outputData.dataOutput(outputQueue, 'autoModelCollection')
+
 
 
     def run_from_muiltiprocess(self):
-        inputQueue1 = Queue()
-        inputQueue2 = Queue()
-        outputQueue1 = Queue()
-        outputQueue2 = Queue()
-        randomProdictData(dataQuery=inputQueue1, dataNum=500)
-        randomProdictData(dataQuery=inputQueue2, dataNum=500)
-        # p1 = Process(target=self.g.put_data_to_query, args=(auto_model_tables, dbparams, "model_year", True, self.inputQueue,))
-        r1 = Process(target=self.p.process_data, args=(inputQueue1, outputQueue1,))
-        r3 = Process(target=self.p.process_data, args=(inputQueue2, outputQueue2,))
-        r2 = Process(target=self.o.data_output, args=(outputQueue1,))
-        r4 = Process(target=self.o.data_output, args=(outputQueue2,))
-        # p1.start()
+        inputQueue =self.create_query()
+        outputQueue =self.create_query()
+        self.inputData.run(inputQueue)
+        # 创建processData对象
+        self.processData = ProcessManage()
+        # 创建outputData对象
+        self.outputData = OutPutDataManage()
+        p1 = Process(target=ProcessManage.process_data, args=(inputQueue, outputQueue))
+        r1 = Process(target=self.outputData.dataOutput, args=(outputQueue, 'autoModelCollection'))
+
+        # p1 = Process(target=self.create_consumer, args=(inputQueue, outputQueue,))
+        # p2 = Process(target=self.create_consumer, args=(inputQueue, outputQueue,))
+        p1.start()
         r1.start()
-        r2.start()
-        r3.start()
-        r4.start()
-        # p1.join()
+        p1.join()
         r1.join()
-        r2.join()
-        r3.join()
-        r4.join()
-        # r3.terminate()
+
 
     def run_from_single_thread(self):
-        from queue import Queue
-        inputQueue = Queue()
-        outputQueue = Queue()
-        randomProdictData(inputQueue)
-        self.p.process_data(inputQueue, outputQueue)
-        self.o.data_output(outputQueue)
+        pass
 
     def run_from_threading(self):
-        from queue import Queue
-        import threading
-        inputQueue1 = Queue()
-        inputQueue2 = Queue()
-        inputQueue3 = Queue()
-        inputQueue4 = Queue()
-        outputQueue1 = Queue()
-        outputQueue2 = Queue()
-        outputQueue3 = Queue()
-        outputQueue4 = Queue()
-        randomProdictData(dataQuery=inputQueue1, dataNum=250)
-        randomProdictData(dataQuery=inputQueue2, dataNum=250)
-        randomProdictData(dataQuery=inputQueue3, dataNum=250)
-        randomProdictData(dataQuery=inputQueue4, dataNum=250)
-        r1 = threading.Thread(target=self.p.process_data, args=(inputQueue1, outputQueue1))
-        r2 = threading.Thread(target=self.p.process_data, args=(inputQueue2, outputQueue2))
-        r3 = threading.Thread(target=self.p.process_data, args=(inputQueue3, outputQueue3))
-        r4 = threading.Thread(target=self.p.process_data, args=(inputQueue4, outputQueue4))
-        t1 = threading.Thread(target=self.o.data_output, args=(outputQueue1,))
-        t2 = threading.Thread(target=self.o.data_output, args=(outputQueue2,))
-        t3 = threading.Thread(target=self.o.data_output, args=(outputQueue3,))
-        t4 = threading.Thread(target=self.o.data_output, args=(outputQueue4,))
-        r1.start()
-        r2.start()
-        r3.start()
-        r4.start()
-        t1.start()
-        t2.start()
-        t3.start()
-        t4.start()
+        pass
 
 
 def fn_timer(function):
@@ -179,7 +140,7 @@ if __name__ == '__main__':
     # pool.join()
     # run_from_single_process()
     # run_from_muiltiprocess()
-    run_from_threading()
+    run_from_muiltiprocess()
 # '''
 # 问题1：cannot serialize _io.BufferedReader object
 # 原因：将不可序列化的对象传到进程中导致，根本原因进程间无法共享数据。
