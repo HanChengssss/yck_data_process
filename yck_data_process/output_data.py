@@ -68,7 +68,7 @@ class OutPutDataManage():
 
     def update_mongodb(self, mongodb, data_id, coll_name):
         collection = mongodb.get_collection(coll_name)
-        ret = collection.update_one({"_id": data_id}, {"$set": {"isProcess": True}})
+        ret = collection.update_one({"_id": data_id}, {"$set": {"isProcess": True}, "$inc": {"processCount": 1}})
         print("pymongo 更新成功！")
 
     def sort_item(self, data):

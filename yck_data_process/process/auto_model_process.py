@@ -7,26 +7,16 @@ from abc import ABCMeta, abstractmethod
 from yck_data_process.logingDriver import Logger
 import os
 from multiprocessing import Queue, Process
-from test6 import fn_timer
+
 
 
 # 单个字段处理基类
 class ModelProcessBase(metaclass=ABCMeta):
-
     '''
     单个字段处理基类
     '''
-    __instanse = None
-
-    def __new__(cls):
-        if not cls.__instanse:
-            cls.__instanse = super().__new__(cls)
-        return cls.__instanse
-
-
     @abstractmethod
     def _process_filed(self, filed):
-        print("the _process_filed from ModelProcessBase")
         pass
 
     @abstractmethod
@@ -37,7 +27,6 @@ class ModelProcessBase(metaclass=ABCMeta):
     def process_datas(self, dataList, filed_name, logDriver, table):
         for d in dataList:
             ret = self._process_filed(d.get(filed_name))
-            # print(filed_name, "=========", ret)
             if not ret:
                 logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, d.get(filed_name), table))
             else:
@@ -50,7 +39,6 @@ class modelYearProcess(ModelProcessBase):
     '''
     车型库年款字段处理处理模块
     '''
-
     def standard_test(self, filed):
         filed = str(filed)
         standardPattern = re.compile(r'\d+款')
@@ -73,6 +61,7 @@ class modelYearProcess(ModelProcessBase):
                 filed = str(Intret) + "款"
                 return filed
         return None
+
 
 # 车型库变速箱字段处理模块
 class GearboxProcess(ModelProcessBase):
@@ -120,7 +109,6 @@ class GearboxProcess(ModelProcessBase):
             return r4
         return None
 
-
 # 车型库处理模块
 class AutoModelProcess():
     '''
@@ -134,9 +122,7 @@ class AutoModelProcess():
         modelYearProcess().process_datas(dataList=dataList, filed_name="model_year", logDriver=logDriver, table=table)
         GearboxProcess().process_datas(dataList=dataList, filed_name="gearbox", logDriver=logDriver, table=table)
 
-
 # 管理和加载所有类型数据的处理方法
-@fn_timer
 class ProcessManage():
 
     @staticmethod
@@ -152,6 +138,7 @@ class ProcessManage():
         while True:
             print("process_Manage %s get_data" % (os.getpid()))
             dataDic = inputQueue.get()
+            print(dataDic)
             if dataDic == "end":
                 print("process_Manage is end")
                 outputQueue.put("end")
@@ -160,48 +147,37 @@ class ProcessManage():
                 AutoModelProcess.process_AutoModel_datas(dataDicts=dataDic, logDriver=logDriver)
             elif dataDic.get("type") == "settings":
                 pass
-            elif dataDic.get("type") == "modelPrice":
-                pass
-            elif dataDic.get("type") == "sales":
-                pass
-            # todo 将处理过的数据打上一个标识，检验在多线程模式下数据是否会被多次修改。
-            if dataDic.get("sign"):
-                logDriver.logger.error(msg="This data has been processed !")
-            else:
-                dataDic['sign'] = True
-            print(dataDic)
             outputQueue.put(dataDic)
 
 
+
+
 if __name__ == '__main__':
-    q1 = Queue()
-    q2 = Queue()
-    dataDict = {
-        "table": "xxx",
-        "type": "auto_model",
-        "dataList": [
-            {
-                "model_year": "2049 年",
-                "gearbox": "自动挡",
-            },
-            {
-                "model_year": "xx2019 ",
-                "gearbox": "电动xxs",
-            },
-            {
-                "model_year": None,
-                "gearbox": None,
-            }
-        ]
-    }
-    q1.put(dataDict)
-    q1.put("end")
-    p1 = Process(target=ProcessManage.process_data, args=((q1, q2)))
-    p1.start()
-    p1.join()
-    # py = modelYearProcess()
-    # filed = py._process_filed(" 2049 年")
-    # print(filed)
+    # q1 = Queue()
+    # q2 = Queue()
+    # dataDict = {
+    #     "table": "xxx",
+    #     "type": "auto_model",
+    #     "dataList": [
+    #         {
+    #             "model_name": None,
+    #             "gearbox": None,
+    #         }
+    #     ]
+    # }
+    # q1.put(dataDict)
+    # q1.put("end")
+    # p1 = Process(target=ProcessManage.process_data, args=((q1, q2)))
+    # p1.start()
+    # p1.join()
+    # print(dataDict)
+    model_year = "xx2012ss"
+    m = modelYearProcess()
+    ret = m._process_filed(model_year)
+    print(ret)
+
+
+
 
 
 

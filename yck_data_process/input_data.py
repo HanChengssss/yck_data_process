@@ -37,6 +37,7 @@ class RandomProdictData():
         datas = []
         for i in range(dataNum):
             dataDict = dict()
+            dataDict["processCount"] = 0
             # dataDict = deepcopy(dataDict)
             dataDict["table"] = 'autoModelTest'
             dataDict["type"] = random.choice(typeList)
@@ -114,7 +115,8 @@ class ProductQueue():
     def putDataToQueue(self, dataList, inputQueue):
         for data in dataList:
             inputQueue.put(data)
-        return inputQueue
+        inputQueue.put("end")
+        # return inputQueue
 
 
 class InputDataMange():
@@ -126,7 +128,8 @@ class InputDataMange():
             self.qm = queryMongoData("autoModelCollection")
             self.pq = ProductQueue()
             dataList = self.qm.find_data()
-            inputQueue = self.pq.putDataToQueue(dataList, inputQueue)
+            print(dataList[0])
+            self.pq.putDataToQueue(dataList, inputQueue)
             # return inputQueue
         finally:
             print("inputQueue finish")
@@ -135,9 +138,5 @@ class InputDataMange():
 if __name__ == '__main__':
     R = RandomProdictData(coll_name='autoModelCollection')
     R.insert_data(dataNum=1000)
-    # q = queryMongoData("autoModelCollection")
-    # q.find_data()
-    # q.chongzhi()
-    # In = InputDataMange()
-    # In.run()
+
 

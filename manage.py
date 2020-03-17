@@ -32,41 +32,34 @@ class ManageBase():
 
 class TestManage(ManageBase):
 
-    def __init__(self):
-        super().__init__()
-        '''
-        初始化各个模块
-        '''
-        # 创建inputdata对象
-        self.inputData = InputDataMange()
-
 
     def create_query(self):
         return Queue()
 
-    def create_consumer(self, inputQueue, outputQueue):
-        # 创建processData对象
-        self.processData = ProcessManage()
-        # 创建outputData对象
-        self.outputData = OutPutDataManage()
-        self.processData.process_data(inputQueue, outputQueue)
-        self.outputData.dataOutput(outputQueue, 'autoModelCollection')
+    # def create_consumer(self, inputQueue, outputQueue):
+    #     # 创建processData对象
+    #     self.processData = ProcessManage()
+    #     # 创建outputData对象
+    #     self.outputData = OutPutDataManage()
+    #     self.processData.process_data(inputQueue, outputQueue)
+    #     self.outputData.dataOutput(outputQueue, 'autoModelCollection')
 
 
 
     def run_from_muiltiprocess(self):
-        inputQueue =self.create_query()
-        outputQueue =self.create_query()
+        '''
+        创建生产和消费队列
+        往队列中装入待处理的数据
+        开启处理进程和存储进程
+        :return:
+        '''
+        inputQueue = self.create_query()
+        outputQueue = self.create_query()
+        self.inputData = InputDataMange()
         self.inputData.run(inputQueue)
-        # 创建processData对象
-        self.processData = ProcessManage()
-        # 创建outputData对象
         self.outputData = OutPutDataManage()
         p1 = Process(target=ProcessManage.process_data, args=(inputQueue, outputQueue))
         r1 = Process(target=self.outputData.dataOutput, args=(outputQueue, 'autoModelCollection'))
-
-        # p1 = Process(target=self.create_consumer, args=(inputQueue, outputQueue,))
-        # p2 = Process(target=self.create_consumer, args=(inputQueue, outputQueue,))
         p1.start()
         r1.start()
         p1.join()
@@ -116,6 +109,7 @@ def run_from_muiltiprocess():
 def run_from_threading():
     t = TestManage()
     t.run_from_threading()
+
 
 if __name__ == '__main__':
     # run()
