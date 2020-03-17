@@ -110,6 +110,7 @@ class queryMongoData():
         # self.client.close()
         return dataList
 
+
 class ProductQueue():
     '''
     将数据放入队列中
