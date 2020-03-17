@@ -90,7 +90,7 @@ class queryMongoData():
 
     def chongzhi(self):
         '''
-        重置mongodb中的书数据状态
+        重置mongodb中的数据状态
         取出后将isProcess字段更新为False
         :return:
         '''
