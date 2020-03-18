@@ -109,6 +109,16 @@ class GearboxProcess(ModelProcessBase):
             return r4
         return None
 
+
+# todo 车型库指导价字段处理模块(待完善)
+class modelPriceProcess():
+    def process_item(self, item, spider):
+        data = item["data"]
+        mp = data["model_price"]  # 2013 款
+        data["model_price"] = float(int(mp)/10000)
+        return item
+
+
 # 车型库处理模块
 class AutoModelProcess():
     '''

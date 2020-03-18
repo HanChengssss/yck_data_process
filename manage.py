@@ -56,7 +56,7 @@ class TestManage(ManageBase):
         inputQueue = self.create_query()
         outputQueue = self.create_query()
         self.inputData = InputDataMange()
-        self.inputData.run(inputQueue)
+        self.inputData.input_data(inputQueue)
         self.outputData = OutPutDataManage()
         p1 = Process(target=ProcessManage.process_data, args=(inputQueue, outputQueue))
         r1 = Process(target=self.outputData.dataOutput, args=(outputQueue, 'autoModelCollection'))

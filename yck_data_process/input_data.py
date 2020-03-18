@@ -1,11 +1,15 @@
 import pymongo
 from pymongo import MongoClient
 import random
-from yck_data_process.settings import auto_model_tables
+from yck_data_process.settings import auto_model_tables, mongodb
 from datetime import datetime
 from multiprocessing import Queue
+from yck_data_process.settings import collNameList, collParm
 
 class RandomProdictData():
+    '''
+    插入测试数据
+    '''
     __instance = None
 
     def __new__(cls, coll_name):
@@ -19,7 +23,7 @@ class RandomProdictData():
         :param coll_name:
         '''
         self.client = MongoClient('localhost', 27017)
-        self.db = self.client.get_database("test")
+        self.db = self.client.get_database(mongodb)
         collList = self.db.collection_names()
         if coll_name not in collList:
             self.collection = self.db.create_collection(name=coll_name)  # 创建一个集合
@@ -54,89 +58,49 @@ class RandomProdictData():
         # ret.inserted_ids 插入数据的id列表
 
 
+class InputDataMange():
 
-class queryMongoData():
-    __instance = None
+    def input_data(self, inputQueue):
+        '''
+        初始化mongodb连接
+        加载待查询的collection
+        查询数据
+        将数据添加到队列
+        :return:
+        '''
+        # 创建集合的配置
+        client = MongoClient('localhost', 27017)
+        try:
+            db = client.get_database("test")
+            collList = db.collection_names()
+            # 如果现有集合中没有，新建一个集合
+            for collDict in collNameList:
+                coll = collDict.get("coll")
+                if coll not in collList:
+                    collection = db.create_collection(name=coll, **collParm)  # 创建一个集合
+                else:
+                    collection = db.get_collection(name=coll)  # 获取一个集合对象
+                self.find_data(collection, inputQueue)  # 将数据装载到队列中
+            inputQueue.put("end")
+            print("inputQueue have been finished !")
+        finally:
+            client.close()
 
-    def __new__(cls, coll_name):
-        if not cls.__instance:
-            cls.__instance = super().__new__(cls)
-        return cls.__instance
 
-    def __init__(self, coll_name):
-        self.client = MongoClient('localhost', 27017)
-        self.db = self.client.get_database("test")
-        collList = self.db.collection_names()
-        if coll_name not in collList:
-            collParm = dict(
-                capped=True,
-                size=1024*1024*50,
-                max=1000000
-            )
-            self.collection = self.db.create_collection(name=coll_name, **collParm)  # 创建一个集合
-        else:
-            self.collection = self.db.get_collection(name=coll_name)  # 获取一个集合对象
-
-    def find_data(self):
+    def find_data(self, collection, inputQueue):
         '''
         查询mongodb中所有isProcess为FALSE的数据
-        :return:
+        将数据装入队列中
         '''
-        cursor = self.collection.find({"isProcess": False})
-        dataList = []
+        cursor = collection.find({"isProcess": False})
         for data in cursor:
-            dataList.append(data)
-        # self.client.close()
-        return dataList
-
-    def chongzhi(self):
-        '''
-        重置mongodb中的数据状态
-        取出后将isProcess字段更新为False
-        :return:
-        '''
-        cursor = self.collection.find({"isProcess": True})
-        idList = []
-        dataList = []
-        for data in cursor:
-            idList.append(data["_id"])
-            dataList.append(data)
-        ret = self.collection.update_many({"_id": {'$in': idList}, "isProcess": True}, {'$set': {"isProcess": False}})
-        print(ret.modified_count)
-        # self.client.close()
-        return dataList
-
-
-class ProductQueue():
-    '''
-    将数据放入队列中
-    '''
-
-    def putDataToQueue(self, dataList, inputQueue):
-        for data in dataList:
             inputQueue.put(data)
-        inputQueue.put("end")
-        # return inputQueue
-
-
-class InputDataMange():
-    '''
-    返回数据队列
-    '''
-    def run(self, inputQueue):
-        try:
-            self.qm = queryMongoData("autoModelCollection")
-            self.pq = ProductQueue()
-            dataList = self.qm.find_data()
-            print(dataList[0])
-            self.pq.putDataToQueue(dataList, inputQueue)
-            # return inputQueue
-        finally:
-            print("inputQueue finish")
 
 
 if __name__ == '__main__':
-    R = RandomProdictData(coll_name='autoModelCollection')
-    R.insert_data(dataNum=1000)
+    q = Queue()
+    i = InputDataMange()
+    i.input_data(q)
+    print(q.get())
 
 
