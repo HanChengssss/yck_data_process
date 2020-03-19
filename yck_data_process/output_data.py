@@ -29,7 +29,17 @@ class OutPutDataManage():
                     conn.close()
                     break
                 try:
-                    self.insert_to_mysql(dataDic=datas, conn=conn, mongodb=db)
+                    type = datas.get("type")
+
+                    dataList = datas.get("dataList")
+                    if type == "auto_model":
+                        updateList = []
+                        insertList = []
+
+                        for item in dataList:
+
+                            AutoModelPipeline.process_item(item=item,updateList=updateList, insertList=insertList,mysqlConn=conn, )
+
                 except Exception as e:
                     log.logger.error(e)
         finally:
@@ -76,6 +86,52 @@ class OutPutDataManage():
         return data
 
 
+# config_autohome_major_info_tmp
+class AutoModelPipeline(object):
+    @staticmethod
+    def process_item(item, updateList, insertList, idFieldSet, mysqlConn):
+        '''
+        车型库更新逻辑
+        只负责把不同存储逻辑的数据进行
+        分类不作任何修改数据库的操作。
+        --------------------------
+        分类逻辑：
+        首先判断该条数据是否已存在
+        如果不存在加入到insertList
+        否则，判断数据是否出现变化
+        如果有变化：将数据加入到
+        updateList
+        如果没变化：抛弃
+        :param item: 一条车型数据
+        :param updateList:待更新列表
+        :param insertList:待插入列表
+        :param idFieldSet:过滤集合
+        :param mysqlConn:数据库连接
+        :return:
+        '''
+        data = item["data"]
+        model_id = data.get("model_id")
+        ret = ToolSave.test_exist(idField=model_id, idFieldSet=idFieldSet)
+        table = "config_autohome_major_info_tmp"
+        item["table"] = table
+        if ret:
+            data.pop("add_time")
+            update_time = data.pop("update_time")
+            new_data = ToolSave.sort_item(data)
+            old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysqlConn=mysqlConn, idField="model_id")
+            old_data = ToolSave.sort_item(old_data)
+            compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
+            if not compare_ret:
+                data["update_time"] = update_time
+                item["idField"] = "model_id"
+                updateList.append(item)
+            else:
+                print("数据无变化！")
+        else:
+            insertList.append(item)
+    
+
+
 # 创建一个工具类，将工具函数与存储逻辑分离
 class ToolSave():
     @staticmethod
@@ -113,18 +169,23 @@ class ToolSave():
         return new_data_md5 == old_data_md5
 
     @staticmethod
-    def get_old_data(new_data, table_name, mysqlCursor, idField):
+    def get_old_data(new_data, table_name, mysqlConn, idField):
         '''
         返回与新抓下的数据相对应的旧数据
         '''
+        mysqlCursor = mysqlConn.cursor()
         if "update_time" in new_data:
             new_data.pop("update_time")
         FieldId = new_data[idField]
         keys = ','.join(new_data.keys())
         query_sql = """select {keys} from {table_name} WHERE {idField}={FieldId}""".format(keys=keys, table_name=table_name, idField=idField, FieldId=FieldId)
-        mysqlCursor.execute(query_sql)
-        old_data = mysqlCursor.fetchone()
-        return old_data
+        try:
+            mysqlCursor.execute(query_sql)
+            old_data = mysqlCursor.fetchone()
+            mysqlCursor.close()
+            return old_data
+        finally:
+            mysqlCursor.close()
 
     @staticmethod
     def sort_item(data):
@@ -187,94 +248,6 @@ class ToolSave():
     @staticmethod
     def foo():
         pass
-
-
-
-# config_autohome_major_info_tmp
-class AutohomeModelPipeline(object):
-
-    def __init__(self, dbparams):
-        self.dbparams = dbparams
-        self.model_id_set = set()
-        self.item_list = []
-
-    @classmethod
-    def from_settings(cls, settings):
-        dbparams = dict(
-            host=settings['MYSQL_HOST'],
-            port=settings['MYSQL_PORT'],
-            user=settings['MYSQL_USER'],
-            passwd=settings['MYSQL_PASSWD'],
-            db=settings['MYSQL_DBNAME'],
-            charset='utf8',
-        )
-        return cls(dbparams)
-
-
-
-    def open_spider(self, spider):
-        print('打开数据库!')
-        self.conn = pymysql.connect(**self.dbparams)
-        self.cursor = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
-        self.init_model_id_set()
-
-
-    def close_spider(self, spider):
-        print('关闭数据库!')
-        self.conn.close()
-
-    def bulk_insert_to_mysql(self, bulkdata, data):
-        try:
-            print("the length of the data-------", len(self.item_list))
-            keys = ",".join(data.keys())
-            values = ",".join(["%s"] * len(data))
-            table = "config_autohome_major_info_tmp"
-            sql = 'REPLACE INTO {table} ({keys}) VALUES ({values})'.format(table=table, keys=keys, values=values)
-            self.cursor.executemany(sql, bulkdata)
-            self.conn.commit()
-            print("保存成功！")
-        except Exception as e:
-            print("保存失败！")
-            print(e)
-            self.conn.rollback()
-
-    def process_item(self, item, updateList, insertList):
-        '''
-        只负责把不同存储逻辑的数据进行
-        分类不作任何修改数据库的操作。
-        --------------------------
-        分类逻辑：
-        首先判断该条数据是否已存在
-        如果不存在加入到insertList
-        否则，判断数据是否出现变化
-        如果有变化：更新原数据字段和updateTime
-        如果没变化：抛弃
-        :param item:
-        :param spider:
-        :return:
-        '''
-        data = item["data"]
-        model_id = data.get("model_id")
-        #
-        ret = ToolSave.test_exist(idField=model_id, idFieldSet=self.model_id_set)
-        table = "config_autohome_major_info_tmp"
-        item["table"] = table
-        if ret:
-            data.pop("add_time")
-            update_time = data.pop("update_time")
-            new_data = ToolSave.sort_item(data)
-            old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysqlCursor=self.cursor, idField="model_id")
-            old_data = ToolSave.sort_item(old_data)
-            compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
-            if not compare_ret:
-                data["update_time"] = update_time
-                item["idField"] = "model_id"
-                updateList.append(item)
-            else:
-                print("数据无变化！")
-        else:
-            insertList.append(item)
-        return updateList, insertList
 
 
 
