@@ -4,7 +4,7 @@ import random
 from yck_data_process.settings import auto_model_tables, mongodb
 from datetime import datetime
 from multiprocessing import Queue
-from yck_data_process.settings import collNameList, collParm
+from yck_data_process import settings
 
 class RandomProdictData():
     '''
@@ -74,10 +74,9 @@ class InputDataMange():
             db = client.get_database("test")
             collList = db.collection_names()
             # 如果现有集合中没有，新建一个集合
-            for collDict in collNameList:
-                coll = collDict.get("coll")
+            for coll in settings.mongodbCollNameDict.keys():
                 if coll not in collList:
-                    collection = db.create_collection(name=coll, **collParm)  # 创建一个集合
+                    collection = db.create_collection(name=coll, **settings.mongodbCollParm)  # 创建一个集合
                 else:
                     collection = db.get_collection(name=coll)  # 获取一个集合对象
                 self.find_data(collection, inputQueue)  # 将数据装载到队列中
