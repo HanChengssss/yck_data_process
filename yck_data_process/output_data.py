@@ -15,7 +15,11 @@ class OutPutDataManage():
     def dataOutput(outputQueue):
         conn = pymysql.connect(**settings.testMysqlParams)
         log = Logger(filename="D:\YCK\代码\yck_data_process\yck_data_process\log_dir\outoutData.log", level='error')
-        mongoConn = pymongo.MongoClient(host="localhost", port=27017)
+        mongoDic = dict(
+            host="localhost",
+            port=27017
+        )
+        mongoConn = pymongo.MongoClient(**mongoDic)
         db = mongoConn.get_database(settings.mongodb)
         qSize = outputQueue.qsize()
         tq = tqdm(total=qSize, desc="数据处理进度：")

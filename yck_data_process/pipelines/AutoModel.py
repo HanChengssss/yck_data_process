@@ -68,7 +68,7 @@ class AutoModelPipeline(object):
             AutoModelPipeline.process_item(item=item, updateList=updateList, insertList=insertList, idFieldSet=idFieldSet, mysqlConn=mysqlConn, table=table)
         # 将分类后的数据进行批存储操作
         ToolSave.update_mysql_many(mysqlConn=mysqlConn, dataList=updateList, table=table, idField=idField)
-        ToolSave.insert_mysql_many(mysqlConn=mysqlConn, dataList=insertList, table=table, hp=True)
+        ToolSave.insert_mysql_many(mysqlConn=mysqlConn, dataList=insertList, table=table, hp=False)
 
 
 

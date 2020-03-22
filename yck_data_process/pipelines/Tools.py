@@ -1,7 +1,12 @@
 import hashlib
 import re
 import pymysql
-
+import traceback
+import datetime
+from yck_data_process import logingDriver
+# from pipelinesTestDriver import ToolTestDriver
+import pymongo
+from yck_data_process import settings
 # 创建一个工具类，将工具函数与存储逻辑分离
 class ToolSave():
 
@@ -153,13 +158,13 @@ class ToolSave():
         values = ",".join(["%s"] * len(data))
         sql = 'INSERT INTO {table} ({keys}) VALUES ({values})'.format(table=table, keys=keys, values=values)
         try:
+            # raise Exception
             if cursor.execute(sql, tuple(data.values())):
                 mysqlConn.commit()
                 # print("保存成功！")
         except Exception as e:
             mysqlConn.rollback()
-            print("保存失败！")
-            print(e)
+            ToolSave.log_error_data(item, table, str(e))
         finally:
             cursor.close()
 
@@ -169,9 +174,7 @@ class ToolSave():
         批量插入MySQL数据库
         两种模式：普通/高性能
         普通：一次插入1条
-        高性能：一次插入多条（
-        有一定的风险，必须保证同一批次的数据，
-        字段数量，顺序一致，并且类型没有问题。）
+        高性能：一次插入多条（使用时出现pymysql.err.ProgrammingError: (1064, ''),目前还没有解决）
         :param mysqlConn:
         :param dataList:
         :param table:
@@ -191,19 +194,89 @@ class ToolSave():
                 data = item["data"]
             else:
                 data = item
-            bulkdata = []
-            for data in dataList:
-                bulkdata.append(tuple(data.values()))
+            dataLen = len(data)
+            print(dataLen)
             keys = ",".join(data.keys())
-            values = re.sub(r'\[|\]', "", str(bulkdata))
+            values = ",".join(["%s"] * len(data))
+            bulkdata = []
+            errorList = []
+            for item in dataList:
+                data = item["data"]  # todo
+                # print("len(data)", len(data))
+                data["add_time"] = ToolSave.dt_to_str(data["add_time"])
+                data["update_time"] = ToolSave.dt_to_str(data["update_time"])
+                if len(data) != dataLen:
+                    errorList.append(data["model_id"])
+                bulkdata.append(tuple(data.values()))
+            # values = re.sub(r'\[|\]', "", str(bulkdata))
+            print(errorList)
             sql = 'INSERT INTO {table} ({keys}) VALUES {values}'.format(table=table, keys=keys, values=values)
+            print(sql)
             try:
-                cursor.execute(sql)
+                # cursor.execute(sql)
+                cursor.executemany(sql, bulkdata)
                 mysqlConn.commit()
             except Exception as e:
                 mysqlConn.rollback()
                 print("保存失败！")
-                print(e)
+
+                traceback.print_exc()
             finally:
                 cursor.close()
 
+    @staticmethod
+    def dt_to_str(dtObject):
+        if isinstance(dtObject, datetime.datetime):
+            return dtObject.strftime("%Y-%m-%d")
+        return dtObject
+
+
+    @staticmethod
+    def log_error_data(item, table, errorMsg):
+        log = logingDriver.Logger(filename="D:\YCK\代码\yck_data_process\yck_data_process\log_dir\dataError.log", level='error')
+        log.logger.error("{} 的数据存储失败，错误信息{}".format(table, errorMsg))
+        mongoDic = dict(
+            host="localhost",
+            port=27017
+        )
+        mongoConn = pymongo.MongoClient(**mongoDic)
+        db = mongoConn.get_database(settings.mongodb)
+
+        ToolSave.insert_mongo_one(db, "error", item, table)
+        c = db.get_collection()
+        c.insert()
+
+        mongoConn.close()
+
+    @staticmethod
+    def insert_mongo_one(mongodb, coll_name, item, table):
+        collection = ToolSave.get_mongo_collection(mongodb, coll_name)
+        dataDic = ToolSave.package_data(item, table, type="auto_model")
+        try:
+            ret = collection.insert(dataDic)
+            print(ret)
+        finally:
+            pass
+
+    @staticmethod
+    def get_mongo_collection(db, coll_name):
+        collList = db.collection_names()
+
+        if coll_name not in collList:
+            collection = db.create_collection(name=coll_name, **settings.mongodbCollParm)  # 创建一个集合
+        else:
+            collection = db.get_collection(name=coll_name)  # 获取一个集合对象
+        return collection
+
+    @staticmethod
+    def package_data(item, table, type):
+        dataDic = dict()
+        dataList = []
+        dataDic["dataList"] = dataList
+        dataDic["isProcess"] = False
+        dataDic["processCount"] = 0
+        dataDic["type"] = type
+        dataDic["table"] = table
+        dataList.append(item)
+        print("package_data finish!")
+        return dataDic
