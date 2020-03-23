@@ -52,3 +52,9 @@ mongodbCollParm = dict(
     size=1024 * 1024 * 500,
     max=1000000
 )
+
+# mongodb 连接信息
+mongoClientParams = dict(
+            host="localhost",
+            port=27017
+        )

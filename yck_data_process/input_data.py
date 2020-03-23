@@ -74,7 +74,7 @@ class InputDataMange():
             db = client.get_database("test")
             collList = db.collection_names()
             # 如果现有集合中没有，新建一个集合
-            for coll in settings.mongodbCollNameDict.keys():
+            for coll in settings.mongodbCollNameDict.values():
                 if coll not in collList:
                     collection = db.create_collection(name=coll, **settings.mongodbCollParm)  # 创建一个集合
                 else:

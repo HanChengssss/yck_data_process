@@ -1,6 +1,8 @@
 from yck_data_process.pipelines.Tools import ToolSave
 from tqdm import tqdm
 # config_autohome_major_info_tmp
+
+
 class AutoModelPipeline(object):
     id_set_dic = {}  # 存放各个车型库的去重集合
     @staticmethod
@@ -24,7 +26,10 @@ class AutoModelPipeline(object):
         :param mysqlConn:数据库连接
         :return:
         '''
-        data = item["data"]
+        if "data" in item:
+            data = item["data"]
+        else:
+            data = item
         model_id = data.get("model_id")
         ret = ToolSave.test_exist(idField=model_id, idFieldSet=idFieldSet)
         if ret:

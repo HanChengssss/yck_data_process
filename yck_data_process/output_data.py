@@ -6,13 +6,19 @@ from yck_data_process import settings
 import pymysql
 from yck_data_process.logingDriver import Logger
 import pymongo
-from yck_data_process.pipelines.AutoModel import AutoModelPipeline
+from yck_data_process.pipelines.autoModelOutput import AutoModelPipeline
 from yck_data_process.pipelines.Tools import ToolSave
 from tqdm import tqdm
 
 class OutPutDataManage():
     @staticmethod
     def dataOutput(outputQueue):
+        '''
+        管理和加载所有的数据库存储类
+        从outputQueue中取出数据存到MySQL中
+        :param outputQueue:
+        :return:
+        '''
         conn = pymysql.connect(**settings.testMysqlParams)
         log = Logger(filename="D:\YCK\代码\yck_data_process\yck_data_process\log_dir\outoutData.log", level='error')
         mongoDic = dict(

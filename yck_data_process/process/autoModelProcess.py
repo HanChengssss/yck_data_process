@@ -7,8 +7,7 @@ from abc import ABCMeta, abstractmethod
 from yck_data_process.logingDriver import Logger
 import os
 from multiprocessing import Queue, Process
-
-
+from yck_data_process import settings
 
 # 单个字段处理基类
 class ModelProcessBase(metaclass=ABCMeta):
@@ -26,13 +25,18 @@ class ModelProcessBase(metaclass=ABCMeta):
 
     def process_datas(self, dataList, filed_name, logDriver, table):
         for d in dataList:
-            ret = self._process_filed(d.get(filed_name))
-            if not ret:
-                logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, d.get(filed_name), table))
+            if "data" in d:
+                data = d["data"]
             else:
-                d[filed_name] = ret
+                data = d
+            ret = self._process_filed(data.get(filed_name))
+            if not ret:
+                logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
+            else:
+                data[filed_name] = ret
                 # dataList.append(d)
         return dataList
+
 
 # 车型库年款字段处理处理模块
 class modelYearProcess(ModelProcessBase):
@@ -40,6 +44,13 @@ class modelYearProcess(ModelProcessBase):
     车型库年款字段处理处理模块
     '''
     def standard_test(self, filed):
+        '''
+        测试输入的字段是否符合标准
+        符合返回True
+        不符合返回False
+        :param filed:
+        :return:
+        '''
         filed = str(filed)
         standardPattern = re.compile(r'\d+款')
         ret =standardPattern.search(filed)
@@ -69,6 +80,15 @@ class GearboxProcess(ModelProcessBase):
     车型库变速箱字段处理模块
     '''
     def standard_test(self, filed):
+        '''
+        测试输入的字段是否符合标准
+        符合返回True
+        不符合返回False
+        :param filed:
+        :return:
+        :param filed:
+        :return:
+        '''
         standardList = ["电动", "自动", "手动"]
         standard_set = set(standardList)
         if filed not in standard_set:
@@ -125,39 +145,31 @@ class AutoModelProcess():
     车型库处理模块
     加载和管理车型库各个字段处理模块
     '''
+    # 标记没有目标字段的车型库，自动忽略。
+    ignoreDict = {
+        "modelYear": ["config_autoowner_major_info_tmp", "config_wyauto_major_info"],
+        "gearBox": [
+            "config_autohome_major_info_tmp",
+            "config_che300_major_info",
+            "config_chezhibao_major_info",
+            "config_souhu_major_info",
+            "config_youxin_major_info_tmp",
+            "config_firstauto_major_info",
+            "config_xcar_major_info",
+            "config_tc5u_major_info",
+            "config_auto12365_major_info_tmp",
+            "config_wyauto_major_info"
+        ]
+    }
+
     @staticmethod
     def process_AutoModel_datas(dataDicts, logDriver):
         dataList = dataDicts.get("dataList")
         table = dataDicts.get("table")
-        modelYearProcess().process_datas(dataList=dataList, filed_name="model_year", logDriver=logDriver, table=table)
-        GearboxProcess().process_datas(dataList=dataList, filed_name="gearbox", logDriver=logDriver, table=table)
-
-# 管理和加载所有类型数据的处理方法
-class ProcessManage():
-
-    @staticmethod
-    def process_data(inputQueue, outputQueue):
-        '''
-        管理和加载所有类型数据的处理方法
-        :param inputQueue:消费待处理队列的数据
-        :param outputQueue: 将处理完成的数据放入该队列
-        :return:
-        '''
-        # 加载日志记录模块，记录处理过程中出现的异常
-        logDriver = Logger("D:\YCK\代码\yck_data_process\yck_data_process\log_dir\modelProcess.log", level='warning')
-        while True:
-            print("process_Manage %s get_data" % (os.getpid()))
-            dataDic = inputQueue.get()
-            print(dataDic)
-            if dataDic == "end":
-                print("process_Manage is end")
-                outputQueue.put("end")
-                break
-            elif dataDic.get("type") == "auto_model":
-                AutoModelProcess.process_AutoModel_datas(dataDicts=dataDic, logDriver=logDriver)
-            elif dataDic.get("type") == "settings":
-                pass
-            outputQueue.put(dataDic)
+        if table not in AutoModelProcess.ignoreDict.get("modelYear"):
+            modelYearProcess().process_datas(dataList=dataList, filed_name="model_year", logDriver=logDriver, table=table)
+        if table not in AutoModelProcess.ignoreDict.get("gearBox"):
+            GearboxProcess().process_datas(dataList=dataList, filed_name="gearbox", logDriver=logDriver, table=table)
 
 
 

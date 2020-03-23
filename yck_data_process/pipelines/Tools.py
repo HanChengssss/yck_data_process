@@ -40,6 +40,8 @@ class ToolSave():
         对比新旧数据的MD5值，判断是否相同
         必须要保证新旧数据字典key顺序一致
         对传入data前先对key进行排序
+        :param new_data:新数据字典 {name:value,...} 没有嵌套
+        :param old_data:旧数据字典 {name:value,...} 没有嵌套
         '''
         if "update_time" in new_data:
             new_data.pop("update_time")
@@ -55,6 +57,10 @@ class ToolSave():
     def get_old_data(new_data, table_name, mysqlConn, idField):
         '''
         返回与新抓下的数据相对应的旧数据
+        :param new_data:新数据字典 {name:value,...} 没有嵌套
+        :param table_name:MySQL table String
+        :param mysqlConn:MySQL 连接
+        :param idField:该条数据的Id（唯一标识字段）名称<String>
         '''
         mysqlCursor = mysqlConn.cursor(pymysql.cursors.DictCursor)
         if "update_time" in new_data:
@@ -71,20 +77,11 @@ class ToolSave():
             mysqlCursor.close()
 
     @staticmethod
-    def get_old_data_many(updateList, table_name, mysqlConn, idField):
-        for item in updateList:
-            new_data = item["data"]
-            if "update_time" in new_data:
-                new_data.pop("update_time")
-        # todo 待完善
-
-
-    @staticmethod
     def sort_item(data):
         '''
-        将字典的键按降序排列
-        :param data:
-        :return:
+        将字典的键按升序排列
+        :param data:数据字典 {name:value,...} 没有嵌套
+        :return:返回排列好的数据
         '''
         data = dict(sorted(data.items(), key=lambda item: item[0], reverse=False))
         return data
@@ -112,9 +109,9 @@ class ToolSave():
         '''
         更新MongoDB中已处理数据的状态：
         isProcess: True, processCount+1
-        :param mongodb:
-        :param data_id:
-        :param coll_name:
+        :param mongodb: mongodb数据库连接（已选择数据库）
+        :param data_id: 一条doc的id
+        :param coll_name: mongodb中集合的名称
         :return:
         '''
         collection = mongodb.get_collection(coll_name)
@@ -123,6 +120,14 @@ class ToolSave():
 
     @staticmethod
     def update_mysql_one(mysqlConn, item, table, idField):
+        '''
+        更新车型库中有变化的一条数据
+        :param mysqlConn: MySQL 连接
+        :param item: 数据字典（可能有嵌套）
+        :param table: Mysql table <String>
+        :param idField: 该条数据的Id（唯一标识字段）名称<String>
+        :return:
+        '''
         if "data" in item:
             data = item["data"]
         else:
@@ -133,21 +138,37 @@ class ToolSave():
         try:
             if cursor.execute(sql, tuple(data.values())):
                 mysqlConn.commit()
-                print("update_mysql finish!")
+
         except Exception as e:
             mysqlConn.rollback()
-            print("保存失败！")
-            print(e)
+            ToolSave.log_error_data(item, table, str(e))
         finally:
             cursor.close()
 
     @staticmethod
     def update_mysql_many(mysqlConn, dataList, table, idField):
+        '''
+        :param mysqlConn: MySQL 连接
+        :param dataList: 包含多条数据的列表 [itemA, itemB, itemC ...]
+        :param table: Mysql table <String>
+        :param idField: 该条数据的Id（唯一标识字段）名称<String>
+        :return:
+        '''
+        if not dataList:
+            return
         for item in dataList:
             ToolSave.update_mysql_one(mysqlConn, item, table, idField)
+        print("update_mysql finish!")
 
     @staticmethod
     def insert_mysql_one(mysqlConn, item, table):
+        '''
+        插入一条数据到mysql
+        :param mysqlConn: MySQL 连接
+        :param item: 数据字典（可能有嵌套）
+        :param table: Mysql table <String>
+        :return:
+        '''
         cursor = mysqlConn.cursor()
         if "data" in item:
             data = item["data"]
@@ -184,84 +205,105 @@ class ToolSave():
         if not hp:
             for item in dataList:
                 ToolSave.insert_mysql_one(mysqlConn, item, table)
-        else:
-            cursor = mysqlConn.cursor()
-            if not dataList:
-                cursor.close()
-                return
-            item = dataList[0]
-            if "data" in item:
-                data = item["data"]
-            else:
-                data = item
-            dataLen = len(data)
-            print(dataLen)
-            keys = ",".join(data.keys())
-            values = ",".join(["%s"] * len(data))
-            bulkdata = []
-            errorList = []
-            for item in dataList:
-                data = item["data"]  # todo
-                # print("len(data)", len(data))
-                data["add_time"] = ToolSave.dt_to_str(data["add_time"])
-                data["update_time"] = ToolSave.dt_to_str(data["update_time"])
-                if len(data) != dataLen:
-                    errorList.append(data["model_id"])
-                bulkdata.append(tuple(data.values()))
-            # values = re.sub(r'\[|\]', "", str(bulkdata))
-            print(errorList)
-            sql = 'INSERT INTO {table} ({keys}) VALUES {values}'.format(table=table, keys=keys, values=values)
-            print(sql)
-            try:
-                # cursor.execute(sql)
-                cursor.executemany(sql, bulkdata)
-                mysqlConn.commit()
-            except Exception as e:
-                mysqlConn.rollback()
-                print("保存失败！")
-
-                traceback.print_exc()
-            finally:
-                cursor.close()
+        # else:
+        #     cursor = mysqlConn.cursor()
+        #     if not dataList:
+        #         cursor.close()
+        #         return
+        #     item = dataList[0]
+        #     if "data" in item:
+        #         data = item["data"]
+        #     else:
+        #         data = item
+        #     dataLen = len(data)
+        #     print(dataLen)
+        #     keys = ",".join(data.keys())
+        #     values = ",".join(["%s"] * len(data))
+        #     bulkdata = []
+        #     errorList = []
+        #     for item in dataList:
+        #         data = item["data"]  # todo
+        #         # print("len(data)", len(data))
+        #         data["add_time"] = ToolSave.dt_to_str(data["add_time"])
+        #         data["update_time"] = ToolSave.dt_to_str(data["update_time"])
+        #         if len(data) != dataLen:
+        #             errorList.append(data["model_id"])
+        #         bulkdata.append(tuple(data.values()))
+        #     # values = re.sub(r'\[|\]', "", str(bulkdata))
+        #     print(errorList)
+        #     sql = 'INSERT INTO {table} ({keys}) VALUES {values}'.format(table=table, keys=keys, values=values)
+        #     print(sql)
+        #     try:
+        #         # cursor.execute(sql)
+        #         cursor.executemany(sql, bulkdata)
+        #         mysqlConn.commit()
+        #     except Exception as e:
+        #         mysqlConn.rollback()
+        #         print("保存失败！")
+        #
+        #         traceback.print_exc()
+        #     finally:
+        #         cursor.close()
 
     @staticmethod
     def dt_to_str(dtObject):
+        '''
+        将日期类型转换成<String>
+        'xxxx(year)-xx(month)-xx(day)'
+        :param dtObject: <class datetime.datetime>
+        :return: <String>
+        '''
         if isinstance(dtObject, datetime.datetime):
             return dtObject.strftime("%Y-%m-%d")
         return dtObject
 
-
     @staticmethod
     def log_error_data(item, table, errorMsg):
+        '''
+        记录更新失败和插入失败的数据
+        将失败的原因记录在dataError.log
+        中，将错误数据插入mongodb中的error集合
+        :param item: 数据字典（可能有嵌套）
+        :param table: Mysql table <String>
+        :param errorMsg: 错误原因 <String>
+        :return:
+        '''
         log = logingDriver.Logger(filename="D:\YCK\代码\yck_data_process\yck_data_process\log_dir\dataError.log", level='error')
         log.logger.error("{} 的数据存储失败，错误信息{}".format(table, errorMsg))
-        mongoDic = dict(
-            host="localhost",
-            port=27017
-        )
-        mongoConn = pymongo.MongoClient(**mongoDic)
+        mongoConn = pymongo.MongoClient(**settings.mongoClientParams)
         db = mongoConn.get_database(settings.mongodb)
-
         ToolSave.insert_mongo_one(db, "error", item, table)
         c = db.get_collection()
         c.insert()
-
         mongoConn.close()
 
     @staticmethod
     def insert_mongo_one(mongodb, coll_name, item, table):
+        '''
+        将一条doc插入mongodb
+        :param mongodb: mongodb数据库连接（已选择数据库）
+        :param coll_name: mongodb中集合的名称
+        :param item: 数据字典（可能有嵌套）
+        :param table: Mysql table <String>
+        :return:
+        '''
         collection = ToolSave.get_mongo_collection(mongodb, coll_name)
         dataDic = ToolSave.package_data(item, table, type="auto_model")
         try:
-            ret = collection.insert(dataDic)
-            print(ret)
+            collection.insert(dataDic)
         finally:
             pass
 
     @staticmethod
     def get_mongo_collection(db, coll_name):
+        '''
+        获取mongodb中集合
+        如果集合不存在则创建
+        :param db: mongodb数据库连接（已选择数据库）
+        :param coll_name: mongodb中集合的名称
+        :return: 返回collection对象
+        '''
         collList = db.collection_names()
-
         if coll_name not in collList:
             collection = db.create_collection(name=coll_name, **settings.mongodbCollParm)  # 创建一个集合
         else:
