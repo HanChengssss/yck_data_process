@@ -29,6 +29,16 @@ mysqlParams = dict(
             charset="utf8",
         )
 
+mysqlSchemaParams = dict(
+            host="192.168.0.10",
+            port=3306,
+            user="root",
+            passwd="000000",
+            db="information_schema",
+            charset="utf8",
+        )
+
+
 testMysqlParams = dict(
             host="localhost",
             port=3306,

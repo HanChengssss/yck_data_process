@@ -23,12 +23,13 @@ class modelYearProcess():
         :param filed:
         :return:
         '''
-        filed = str(filed)
-        standardPattern = re.compile(r'\d+款')
-        ret =standardPattern.search(filed)
-        if ret:
-            return True
-        else:
+        try:
+            filed = str(int(filed))
+            if len(filed) == 4:
+                return True
+            else:
+                return False
+        except:
             return False
 
     @staticmethod
@@ -40,13 +41,13 @@ class modelYearProcess():
         if ret:
             data[filed_name] = filed
             return
-        Intpatter = re.compile(r'\d+')
-        Intret = Intpatter.search(str(filed)).group() if Intpatter.search(str(filed)) else None
-        if Intret:
-            if len(Intret) == 4:
-                filed = str(Intret) + "款"
-                data[filed_name] = filed
-                return
+        # Intpatter = re.compile(r'\d+')
+        # Intret = Intpatter.search(str(filed)).group() if Intpatter.search(str(filed)) else None
+        # if Intret:
+        #     if len(Intret) == 4:
+        #         filed = str(Intret) + "款"
+        #         data[filed_name] = filed
+        #         return
         logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
 
 
@@ -146,6 +147,7 @@ class ModelpriceProcess():
             return
         except:
             logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
+
 
 
 # 车型库处理模块
