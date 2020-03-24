@@ -1,7 +1,6 @@
 import pymongo
 from pymongo import MongoClient
 import random
-from yck_data_process.settings import auto_model_tables, mongodb
 from datetime import datetime
 from multiprocessing import Queue
 from yck_data_process import settings
@@ -22,8 +21,8 @@ class RandomProdictData():
         获取一个集合对象，如果不存在则创建一个
         :param coll_name:
         '''
-        self.client = MongoClient('localhost', 27017)
-        self.db = self.client.get_database(mongodb)
+        self.client = MongoClient(**settings.mongoClientParams)
+        self.db = self.client.get_database(settings.mongodb)
         collList = self.db.collection_names()
         if coll_name not in collList:
             self.collection = self.db.create_collection(name=coll_name)  # 创建一个集合
@@ -60,7 +59,8 @@ class RandomProdictData():
 
 class InputDataMange():
 
-    def input_data(self, inputQueue):
+    @staticmethod
+    def input_data(inputQueue):
         '''
         初始化mongodb连接
         加载待查询的collection
@@ -69,9 +69,9 @@ class InputDataMange():
         :return:
         '''
         # 创建集合的配置
-        client = MongoClient('localhost', 27017)
+        client = MongoClient(**settings.mongoClientParams)
         try:
-            db = client.get_database("test")
+            db = client.get_database(settings.mongodb)
             collList = db.collection_names()
             # 如果现有集合中没有，新建一个集合
             for coll in settings.mongodbCollNameDict.values():
@@ -79,14 +79,14 @@ class InputDataMange():
                     collection = db.create_collection(name=coll, **settings.mongodbCollParm)  # 创建一个集合
                 else:
                     collection = db.get_collection(name=coll)  # 获取一个集合对象
-                self.find_data(collection, inputQueue)  # 将数据装载到队列中
+                InputDataMange.find_data(collection, inputQueue)  # 将数据装载到队列中
             inputQueue.put("end")
             print("inputQueue have been finished !")
         finally:
             client.close()
 
-
-    def find_data(self, collection, inputQueue):
+    @staticmethod
+    def find_data(collection, inputQueue):
         '''
         查询mongodb中所有isProcess为FALSE的数据
         将数据装入队列中

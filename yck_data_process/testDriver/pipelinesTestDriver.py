@@ -3,68 +3,7 @@ import pymysql
 from yck_data_process import settings
 from multiprocessing import Queue
 from yck_data_process.output_data import OutPutDataManage
-
-
-class ToolTestDriver():
-    @staticmethod
-    def get_mysql_data(mysqlConn, table):
-        cursor = mysqlConn.cursor(pymysql.cursors.DictCursor)
-        print("==========table", table)
-        try:
-            sql = "SELECT * FROM {TABLE}".format(TABLE=table)
-            cursor.execute(sql)
-            records = cursor.fetchall()
-            print("get_mysql_data finish!")
-            return records
-        finally:
-            cursor.close()
-
-    @staticmethod
-    def package_data(records, table, type):
-        dataDic = dict()
-        dataList = []
-        dataDic["dataList"] = dataList
-        dataDic["isProcess"] = False
-        dataDic["processCount"] = 0
-        dataDic["type"] = type
-        dataDic["table"] = table
-        for data in records:
-            if "id" in data:
-                data.pop("id")
-            item = dict()
-            item["data"] = data
-            dataList.append(item)
-        print("package_data finish!")
-        return dataDic
-
-    @staticmethod
-    def insert_mongo_many(mongodb, coll_name, dataDicList):
-        collection = ToolTestDriver.get_mongo_collection(mongodb, coll_name)
-        try:
-            ret = collection.insert_many(dataDicList)
-            if ret.acknowledged:
-                print("插入成功！")
-            else:
-                print("插入失败！")
-        finally:
-            pass
-
-    @staticmethod
-    def get_mongo_data(mongodb, coll_name):
-        collection = mongodb.get_collection(name=coll_name)  # 获取一个集合对象
-        cursor = collection.find({"isProcess": False})
-        return cursor
-
-    @staticmethod
-    def get_mongo_collection(db, coll_name):
-        collList = db.collection_names()
-
-        if coll_name not in collList:
-            collection = db.create_collection(name=coll_name, **settings.mongodbCollParm)  # 创建一个集合
-        else:
-            collection = db.get_collection(name=coll_name)  # 获取一个集合对象
-        return collection
-
+from yck_data_process.testDriver.toolTestDriver import ToolTestDriver
 
 
 class AutoModelTestDriver():
@@ -78,7 +17,7 @@ class AutoModelTestDriver():
         先将测试数据库中的车型库数据导入mongod
         '''
         mysqlConn = pymysql.connect(**settings.testMysqlParams)
-        mongoConn = MongoClient('localhost', 27017)
+        mongoConn = MongoClient(**settings.mongoClientParams)
         db = mongoConn.get_database(settings.mongodb)
         dataDicList = []
         for table in settings.auto_model_tables:
@@ -124,17 +63,19 @@ class AutoModelTestDriver():
 
     @staticmethod
     def test_driver():
-        mongoConn = MongoClient('localhost', 27017)
+        '''
+        从队列中取出待存储的数据
+        测试存储过程是否有bug
+        :return:
+        '''
+        mongoConn = MongoClient(settings.mongoClientParams)
         db = mongoConn.get_database(settings.mongodb)
         q = AutoModelTestDriver.put_data_queue(db, settings.mongodbCollNameDict.get("auto_model"))
         OutPutDataManage.dataOutput(q)
+        mongoConn.close()
 
 
 if __name__ == '__main__':
-    # AutoModelTestDriver.autodata_input_mongo()
-    '''
-    mysql高性能模式存在bug,猜测是由于有个别数据出现键值对不同的情况。
-    '''
     AutoModelTestDriver.test_driver()
 
 
