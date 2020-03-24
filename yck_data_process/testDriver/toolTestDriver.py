@@ -1,5 +1,9 @@
 import pymysql
 from yck_data_process import settings
+from pymongo import MongoClient
+import random
+from datetime import datetime
+
 
 class ToolTestDriver():
     '''
@@ -96,3 +100,58 @@ class ToolTestDriver():
         else:
             collection = db.get_collection(name=coll_name)  # 获取一个集合对象
         return collection
+
+
+class RandomProdictData():
+    '''
+    插入随机创建测试数据
+    '''
+    __instance = None
+
+    def __new__(cls, coll_name):
+        if not cls.__instance:
+            cls.__instance = super().__new__(cls)
+        return cls.__instance
+
+    def __init__(self, coll_name):
+        '''
+        获取一个集合对象，如果不存在则创建一个
+        :param coll_name:
+        '''
+        self.client = MongoClient(**settings.mongoClientParams)
+        self.db = self.client.get_database(settings.mongodb)
+        collList = self.db.collection_names()
+        if coll_name not in collList:
+            self.collection = self.db.create_collection(name=coll_name)  # 创建一个集合
+        else:
+            self.collection = self.db.get_collection(name=coll_name)  # 获取一个集合对象
+
+    def insert_data(self, dataNum):
+        '''
+        插入随机创建的数据
+        :return:
+        '''
+        typeList = ["auto_model"]
+        modelyearList = ["xx2012ss", "2098 n ", "2019", "1998 款x"]
+        grarBoxList = ["xx自动ss", "半自动 n ", "全自动形式上", "电动sx马s达"]
+        datas = []
+        try:
+            for i in range(dataNum):
+                dataDict = dict()
+                dataDict["processCount"] = 0
+                # dataDict = deepcopy(dataDict)
+                dataDict["table"] = 'autoModelTest'
+                dataDict["type"] = random.choice(typeList)
+                dataDict["isProcess"] = False
+                dataDict["add_time"] = datetime.today()
+                dataDict["update_time"] = datetime.today()
+                dataDict["dataList"] = []
+                for i in range(1000):
+                    dataDict["dataList"].append(
+                        {"model_year": random.choice(modelyearList), "gearbox": random.choice(grarBoxList)})
+                datas.append(dataDict)
+            ret = self.collection.insert_many(datas)
+            if ret.acknowledged:
+                print("插入成功！")
+        finally:
+            self.client.close()
