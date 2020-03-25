@@ -5,6 +5,7 @@ import simplejson
 
 class MysqlTableSchema():
     basePath = "D:\YCK\代码\yck_data_process\yck_data_process\mysqlTableSchema\\{}"
+
     @staticmethod
     def get_table_schema(mysqlConn, tableNameList, dbName):
         cursor = mysqlConn.cursor()
@@ -19,8 +20,10 @@ class MysqlTableSchema():
         return tableSchemaDicList
 
     @staticmethod
-    def save_to_json():
-        pass
+    def save_to_json(tableSchemaDicList, jsonPath):
+        with open(MysqlTableSchema.basePath.format(jsonPath), 'w', encoding='utf8') as f:
+            for tableSchemaDic in tableSchemaDicList:
+                f.write(simplejson.dumps(tableSchemaDic, ensure_ascii=False, encoding='utf8') + "\n")
 
     @staticmethod
     def get_table_name_list(dataType):
@@ -48,10 +51,7 @@ class MysqlTableSchema():
         table_name_list = MysqlTableSchema.get_table_name_list(dataType="auto_model")
         dbName = "yck-data-center"
         tableSchemaDicList = MysqlTableSchema.get_table_schema(mysqlConn, table_name_list, dbName)
-        with open(MysqlTableSchema.basePath.format("autoModelSchemaInfo.json"), 'w', encoding='utf8') as f:
-            for tableSchemaDic in tableSchemaDicList:
-                f.write(simplejson.dumps(tableSchemaDic, ensure_ascii=False, encoding='utf8') + "\n")
-
+        MysqlTableSchema.save_to_json(tableSchemaDicList, "autoModelSchemaInfo.json")
 
 if __name__ == '__main__':
     MysqlTableSchema.manage()

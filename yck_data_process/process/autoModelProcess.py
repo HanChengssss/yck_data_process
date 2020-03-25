@@ -75,7 +75,18 @@ class GearboxProcess():
 
     @staticmethod
     def process_filed(data, filed_name, logDriver, table):
+        '''
+        由于变速箱的字段名称有两个：gearbox,auto
+        所以需要经过两次判断
+        :param data:
+        :param filed_name:
+        :param logDriver:
+        :param table:
+        :return:
+        '''
         filed = data.get(filed_name)
+        if not filed:
+            filed = data.get("auto")
         if not filed:
             return
         ret = GearboxProcess.standard_test(filed)
@@ -109,6 +120,7 @@ class GearboxProcess():
         logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
 
 
+# 指导价处理模块
 class ModelpriceProcess():
     '''
     指导价处理模块
@@ -149,6 +161,73 @@ class ModelpriceProcess():
             logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
 
 
+# 车型名称处理模块
+class ModelNameProcess():
+    @staticmethod
+    def standard_test(filed):
+        # 2008款 海狮 汽油系列三菱动力2.4(商务型)
+        try:
+            ret = re.search("\d+款", filed.split(" ")[0])
+            if ret:
+                return True
+            else:
+                return False
+        except:
+            return False
+
+    @staticmethod
+    def process_filed(data, filed_name, logDriver, table):
+        '''
+        这个模块只检测车300的model_name
+        '''
+        if table == "config_che300_major_info":
+            filed = data.get(filed_name)
+            ret = ModelNameProcess.standard_test(filed)
+            if ret:
+                return
+            logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
+
+
+# 车型库排放标准处理模块
+class ModelDischargeProcess():
+    @staticmethod
+    def standard_test(filed):
+        pattern = re.compile(r'国1|国2|国3|国4|国5|国6|京3|欧4')
+        try:
+            ret = pattern.search(filed)
+            if ret:
+                return True
+            else:
+                return False
+        except:
+            return False
+
+
+    @staticmethod
+    def process_filed(data, filed_name, logDriver, table):
+        # discharge_standard
+        filed_name = "discharge_standard"
+        filed = data.get(filed_name)
+        if table == "config_che300_major_info":
+            ret = ModelNameProcess.standard_test(filed)
+            if ret:
+                pattern = re.compile(r'国1|国2|国3|国4|国5|国6|京3|欧4')
+                data[filed_name] = pattern.search(filed).group()
+                return
+            logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
+        elif table == "config_firstauto_major_info":
+            if not filed:
+                return
+            if isinstance(filed, str):
+                try:
+                    if len(filed) >= 2:
+                        lomaDic = {"Ⅰ": 1, "Ⅱ": 2, "Ⅲ": 3, "Ⅳ": 4, "Ⅴ": 5}
+                        new_filed = filed.replace(filed[1], str(lomaDic.get(filed[1])))
+                        data[filed_name] = new_filed
+                        return
+                except:
+                    logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
+
 
 # 车型库处理模块
 class AutoModelProcess():
@@ -188,10 +267,14 @@ class AutoModelProcess():
             modelYearProcess.process_filed(filed_name="model_year", data=data, logDriver=logDriver, table=table)
             GearboxProcess.process_filed(filed_name="gearbox", data=data, logDriver=logDriver, table=table)
             ModelpriceProcess.process_filed(filed_name="model_price", data=data, logDriver=logDriver, table=table)
+            ModelNameProcess.process_filed(filed_name="model_name", data=data, logDriver=logDriver, table=table)
 
 
 if __name__ == '__main__':
-    model_year = "-"
+    log = ""
+    data = dict(discharge_standard="国Ⅰ")
+    ModelDischargeProcess.process_filed(data, filed_name="discharge_standard", logDriver=log, table="config_firstauto_major_info")
+    print(data)
 
 
 
