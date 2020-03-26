@@ -1,5 +1,6 @@
 from yck_data_process.testDriver.toolTestDriver import ToolTestDriver
-from yck_data_process.process.autoModelProcess import AutoModelProcess
+from yck_data_process.process.autoModelProcess import ModelProcessManage
+from yck_data_process.process.autoModelProcess import *
 from yck_data_process import settings
 import pymongo
 from yck_data_process.logingDriver import Logger
@@ -15,12 +16,15 @@ class ProcessTestDriver():
         mongoConn = pymongo.MongoClient(**settings.mongoClientParams)
         db = mongoConn.get_database(settings.mongodb)
         cursor = ToolTestDriver.get_mongo_data(db, settings.mongodbCollNameDict.get("auto_model"))
-        dataDic = cursor.next()
-        print(dataDic)
         logDriver = Logger("D:\YCK\代码\yck_data_process\yck_data_process\log_dir\modelProcess.log", level='warning')
-        AutoModelProcess.process_AutoModel_datas(dataDic, logDriver)
-        print(dataDic)
+        for dataDic in cursor:
+            print(dataDic)
+            ModelProcessManage.process_AutoModel_datas(dataDic, logDriver)
+            print(dataDic)
+
 
 
 if __name__ == '__main__':
-    ProcessTestDriver.test_driver()
+    # ProcessTestDriver.test_driver()
+    logDriver = Logger("D:\YCK\代码\yck_data_process\yck_data_process\log_dir\modelProcess.log", level='warning')
+    ModelpriceProcess.process_filed(data={"model_price": 15.08}, logDriver=logDriver, table="xxx")
