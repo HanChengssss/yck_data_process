@@ -1,10 +1,54 @@
-# '''
-# 问题1：cannot serialize _io.BufferedReader object
-# 原因：将不可序列化的对象传到进程中导致，根本原因进程间无法共享数据。
-# https://blog.csdn.net/chenyulancn/article/details/8013054
-# 解决方式：每个方法各自使用参数，不依类的实例变量
-# 问题2：穿入方法中队列需要将队列里的数据，完全消费完才会退出。
-# 问题3：p1.join方法是等待，只有等待这个进程结束了，父进程才会退出。
-# 问题4：经过测试，使用一个成产队列，多个消费进程，运行速度被没有明显的提升，猜测，某个消费进程在获取元素时，令一个进程处于等待中，并不能同时获取下一个元素。且每个进程处理元素的速度很快，所以看起来并没有明显的提升。
-# 问题5：局部变量的作用域问题，当一个变量被当作参数传入函数内部时，这个变量对内存引用是否会发生改变。
-# '''
+'''
+测试目的：我需要写一个装饰器，需要在主方法执行到被装饰函数时执行，接收的参数和返回参数与被装饰的方法相同，
+'''
+
+
+# 装饰器
+# def decorate(func):
+#     print("decorate foo..")
+#     return func
+
+# def decorate(func):
+#     print("decorate...")
+#     def new_func(a, b, c):
+#         print("decorate new_func..")
+#         if a == 1:
+#             a = 2
+#         return func(a, b, c)
+#     return new_func
+
+def decorate(func):
+    print("decorate...")
+    def new_func(a, b, c):
+        print("decorate new_func..")
+        if a == 1:
+            return 8888
+        return func(a, b, c)
+    return new_func
+
+# 被装饰函数
+@decorate
+def foo(a, b, c):
+    print("foo...")
+    return a+b+c
+
+
+
+# 调用foo的主方法
+def invokeFoo():
+    print("invokeFoo...")
+    a, b, c = 1, 2, 3
+    ret = foo(a, b, c)
+    print("foo ret...", ret)
+
+
+if __name__ == '__main__':
+    invokeFoo()
+    '''
+    执行结果
+    decorate... // 装饰器外层函数最先执行
+    invokeFoo... // 调用被装饰方法的主方法执行
+    decorate new_func.. // 装饰器内层方法执行
+    foo... // 被装饰方法执行
+    foo ret... 8888 // 被装饰方法执行完毕
+    '''
