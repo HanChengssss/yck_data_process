@@ -21,6 +21,9 @@ todo 字段处理函数有多个return，需要改成一个return
 todo 在测试的时候出现无厘头的bug，貌似跟字符串的类型有关，我发现我在测试自己的代码时，一旦复杂度提高，我对运行的过程，把控不足。
 解决7：已解决
 
+todo python 文件搜索学习
+https://blog.csdn.net/tzh_linux/article/details/69950484
+
 todo 处理的字段中存在大量的None、空字符、0需要对这些字符进行统一的处理。
 
 todo 方法中有很多if判断和for循环可以尝试优化写法

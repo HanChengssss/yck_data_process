@@ -1,0 +1,7 @@
+testLogPathDic = {
+
+}
+
+normalLogPathDic = {
+
+}
