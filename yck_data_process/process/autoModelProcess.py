@@ -9,18 +9,6 @@ import os
 from multiprocessing import Queue, Process
 from yck_data_process import settings
 
-# 过滤掉字段名称是model_name，且table不是che300数据
-def filterTable(func):
-
-    print("filterTable...")
-
-    def new_func(data, filedNameList, logDriver, table, processFun):
-        if "model_name" in filedNameList and table != "config_che300_major_info":
-            logDriver.logger.info("过滤掉字段名称是model_name，且table不是che300数据")
-            return
-        return func(data, filedNameList, logDriver, table, processFun)
-    return new_func
-
 
 # 车型库年款字段处理处理模块
 class ModelYearProcess():
@@ -33,12 +21,16 @@ class ModelYearProcess():
             "isLog": False,
             "filed": None
         }
-        ret = re.search(r'\d{4}', filed)
-        if ret:
-            statusDic["filed"] = ret.group()
+        try:
+            ret = re.search(r'\d{4}', str(filed))
+            if ret:
+                statusDic["filed"] = ret.group()
+            else:
+                statusDic["isLog"] = True
+        except:
+            statusDic["isLog"] = True
+        finally:
             return statusDic
-        statusDic["isLog"] = True
-        return statusDic
 
 
 # 车型库变速箱字段处理模块
@@ -63,36 +55,33 @@ class ModelGearboxProcess():
             "filed": None
         }
         p1 = re.compile(r'自动|手动|电动')  # 标准
-        p2 = re.compile(r'.*CVT|.*无级变速|手自一体|机械自动|双离合|双离合\.*手自动一体|DSG双离合|双离合器|G-DCT|DCT|DSG|AT|AMT智能手动版|AMT智能手动|AMT|EMT|IMT')  # --> 自动
+        p2 = re.compile(r'.*CVT|.*无级变速|手自一体|机械自动|双离合|双离合\.*手自动一体|DSG双离合|双离合器|G-DCT|DCT|DSG|AT|AMT智能手动版|AMT智能手动|AMT|EMT|IMT|ISR')  # --> 自动
         p3 = re.compile(r'单速变速箱')  # -->电动
         p4 = re.compile(r'.*序列')  # -->手动
+
         r1 = p1.search(filed)
-
-        r1 = r1.group() if r1 else None
-        if r1:
-            statusDic["filed"] = r1
-            return statusDic
-
         r2 = p2.search(filed)
-        r2 = r2.group() if r2 else None
-        if r2:
-            statusDic["filed"] = "自动"
-            return statusDic
-
         r3 = p3.search(filed)
-        r3 = r3.group() if r3 else None
-        if r3:
-            statusDic["filed"] = "电动"
-            return statusDic
-
         r4 = p4.search(filed)
-        r4 = r4.group() if r4 else None
-        if r4:
-            statusDic["filed"] = "手动"
+        try:
+            if r1:
+                statusDic["filed"] = r1.group()
+                # return statusDic
+            elif r2:
+                statusDic["filed"] = "自动"
+                # return statusDic
+            elif r3:
+                statusDic["filed"] = "电动"
+                # return statusDic
+            elif r4:
+                statusDic["filed"] = "手动"
+                # return statusDic
+            else:
+                statusDic["isLog"] = True
+        except:
+            statusDic["isLog"] = True
+        finally:
             return statusDic
-
-        statusDic["isLog"] = True
-        return statusDic
 
 
 # 指导价处理模块
@@ -107,14 +96,16 @@ class ModelPriceProcess():
             "isLog": False,
             "filed": None
         }
-        if int(filed) < 10000:
-            return statusDic
         try:
-            r1 = round(int(filed)/10000, 2)  # 四舍五入保留两位小数
-            statusDic["filed"] = r1
-            return statusDic
+            if int(float(filed)) < 10000:
+                pass
+            else:
+                r1 = round(int(filed)/10000, 2)  # 四舍五入保留两位小数
+                assert r1 < 10000
+                statusDic["filed"] = r1
         except:
             statusDic["isLog"] = True
+        finally:
             return statusDic
 
 
@@ -129,11 +120,11 @@ class ModelNameProcess():
         }
         try:
             # 2008款 海狮 汽油系列三菱动力2.4(商务型)
-            ret = re.search(r'\d{4}款 \w+ \w+', filed)
+            ret = re.search(r'\d{4}款 \w+|\d{4}款  \w+', filed)
             assert ret.group()
-            return statusDic
         except:
             statusDic["isLog"] = True
+        finally:
             return statusDic
 
 
@@ -147,24 +138,27 @@ class ModelDischargeProcess():
             "isLog": False,
             "filed": None
         }
-        pattern = re.compile(r'国1|国2|国3|国4|国5|国6|京3|欧4')
-        ret = pattern.search(filed)
-        if ret:
-            statusDic["filed"] = ret.group()
-            return statusDic
+        try:
+            pattern = re.compile(r'国1|国2|国3|国4|国5|国6|京3|京5|欧1|欧2|欧3|欧4|欧5|欧6|-')
+            ret = pattern.search(filed)
+            if ret:
+                statusDic["filed"] = ret.group()
 
-        if len(filed) == 2 and isinstance(filed, str):
-            try:
-                romeNumberDic = {"Ⅰ": 1, "Ⅱ": 2, "Ⅲ": 3, "Ⅳ": 4, "Ⅴ": 5}
-                romeNumber = filed[1]
-                assert romeNumber in romeNumberDic
-                statusDic["filed"] = filed.replace(romeNumber, str(romeNumberDic[romeNumber]))
-                return statusDic
-            except:
+            elif len(filed) >= 2 and isinstance(filed, str):
+                romeNumberDic = {"Ⅰ": 1, "Ⅱ": 2, "Ⅲ": 3, "Ⅳ": 4, "Ⅴ": 5, "Ⅵ": 6}
+                chinaNumberDic = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7}
+                numberMap = filed[1]
+                number = str(romeNumberDic[numberMap]) if numberMap in romeNumberDic else None
+                if not number:
+                    number = str(chinaNumberDic[numberMap]) if numberMap in chinaNumberDic else None
+                assert number
+                statusDic["filed"] = filed.replace(numberMap, str(number))
+            else:
                 statusDic["isLog"] = True
-                return statusDic
-        statusDic["isLog"] = True
-        return statusDic
+        except:
+            statusDic["isLog"] = True
+        finally:
+            return statusDic
 
 
 # 车级别处理模块
@@ -176,13 +170,13 @@ class ModelAutoCarLevelProcess():
             "filed": None
         }
         try:
-            pattern = re.compile(r'微型车|小型车|紧凑型车|中型车|中大型车|豪华车|小型SUV|紧凑型SUV|中型SUV|中大型SUV|大型SUV|全尺寸SUV|跑车|MPV|客车|皮卡|微面|卡车|其它')
+            pattern = re.compile(r'微型车|小型车|紧凑型车|中型车|中大型车|豪华车|小型SUV|紧凑型SUV|中型SUV|中大型SUV|大型SUV|全尺寸SUV|跑车|MPV|客车|皮卡|微面|卡车|欧5|微卡|其它|-')
             ret = pattern.search(filed)
             assert ret.group()
             statusDic["filed"] = ret.group()
-            return statusDic
         except:
             statusDic["isLog"] = True
+        finally:
             return statusDic
 
 
@@ -194,9 +188,26 @@ class ModelAutoSeatNumberProcess():
             "isLog": False,
             "filed": None
         }
-        filed = filed.replace("、", "/")
-        statusDic["filed"] = filed
-        return statusDic
+        try:
+            filed = filed.replace("、", "/")
+            statusDic["filed"] = filed
+        except:
+            statusDic["isLog"] = True
+        finally:
+            return statusDic
+
+
+# 只有che300需要对model_name进行处理
+def filterTable(func):
+
+    print("filterTable...")
+
+    def new_func(data, filedNameList, logDriver, table, processFun):
+        if "model_name" in filedNameList and table != "config_che300_major_info":
+            logDriver.logger.info("过滤掉字段名称是model_name，且table不是che300数据")
+            return
+        return func(data, filedNameList, logDriver, table, processFun)
+    return new_func
 
 
 # 车型库字段管理模块
@@ -207,7 +218,6 @@ class ModelFieldProcessMange():
     def process_data(data, filedNameList, logDriver, table, processFun):
         '''
         将字段的公共处理规则和私有处理规则分离
-        todo 这个方法可以写成装饰器
         :param data:
         :param filedNameList:
         :param logDriver:
@@ -242,7 +252,7 @@ class ModelProcessManage():
     filedProcessDic = {
         "年款": {"func": ModelYearProcess, "nameList": ["model_year"]},
         "变速箱": {"func": ModelGearboxProcess, "nameList": ["gearbox", "auto"]},
-        "指导价": {"func": ModelPriceProcess, "nameList": ["model_process"]},
+        "指导价": {"func": ModelPriceProcess, "nameList": ["model_price"]},
         "车型名称": {"func": ModelNameProcess, "nameList": ["model_name"]},
         "排放标准": {"func": ModelDischargeProcess, "nameList": ["discharge_standard"]},
         "车级别": {"func": ModelAutoCarLevelProcess, "nameList": ["car_level"]},
@@ -267,8 +277,8 @@ class ModelProcessManage():
 if __name__ == '__main__':
     # ret = ModelGearboxProcess.process_filed("序列变速箱")
     # ret = ModelpriceProcess.process_filed(8.02)
-    # ret = ModelDischargeProcess.process_filed("国IV")
-    ret = ModelNameProcess.process_filed("2008款 海 汽油系")
+    # ret = ModelDischargeProcess.process_filed("欧3")
+    ret = ModelNameProcess.process_filed("2018款  凯路威(进口) T6 2.0T 四驱 豪华商务车 美规")
     print(ret)
 
 

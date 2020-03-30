@@ -27,4 +27,3 @@ class ProcessTestDriver():
 if __name__ == '__main__':
     ProcessTestDriver.test_driver()
     # logDriver = Logger("D:\YCK\代码\yck_data_process\yck_data_process\log_dir\modelProcess.log", level='warning')
-

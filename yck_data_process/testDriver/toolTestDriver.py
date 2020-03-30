@@ -74,15 +74,18 @@ class ToolTestDriver():
             pass
 
     @staticmethod
-    def get_mongo_data(mongodb, coll_name):
+    def get_mongo_data(mongodb, coll_name, dataSourceTable=None):
         '''
-        获取Mongodb中所有符合"isProcess": False的数据
+        获取Mongodb中所有符合"isProcess": False的数据, dataSourceTable:数据归属的mysqltable
         :param mongodb: mongodb数据库连接（已选择数据库）
         :param coll_name: mongodb中集合的名称
         :return: cursor对象
         '''
+        condition = {"isProcess": False}
+        if dataSourceTable:
+            condition["table"] = dataSourceTable
         collection = mongodb.get_collection(name=coll_name)  # 获取一个集合对象
-        cursor = collection.find({"isProcess": False})
+        cursor = collection.find(condition)
         return cursor
 
     @staticmethod
