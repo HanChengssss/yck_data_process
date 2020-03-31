@@ -15,7 +15,7 @@ auto_model_tables = [
 
 
 class TablesManage():
-    @staticmethod
-    def get_tables(type):
-        if type == "model":
+
+    def get_tables(self, dataType):
+        if dataType == "model":
             return auto_model_tables

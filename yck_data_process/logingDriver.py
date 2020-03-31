@@ -6,6 +6,7 @@
 import logging
 from logging import handlers
 
+
 class Logger(object):
     level_relations = {
         'debug': logging.DEBUG,

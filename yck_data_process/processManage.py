@@ -1,6 +1,6 @@
 from yck_data_process.logingDriver import Logger
-from yck_data_process.process.autoModelProcess import AutoModelProcess
-
+from yck_data_process.process.autoModelProcess import ModelProcessManage
+from yck_data_process.settingsManage import SettingsManage
 
 class ProcessManage():
     '''
@@ -13,8 +13,10 @@ class ProcessManage():
         :param outputQueue: 将处理完成的数据放入该队列
         :return:
         '''
+        sm = SettingsManage()
+        logDirManage = sm.get_logSettingsInstance()
         # 加载日志记录模块，记录处理过程中出现的异常
-        logDriver = Logger("D:\YCK\代码\yck_data_process\yck_data_process\log_dir\modelProcess.log", level='warning')
+        logDriver = Logger("{}\modelProcess.log".format(logDirManage.get_logDirFullPath()), level='warning')
         while True:
             # print("process_Manage %s get_data" % (os.getpid()))
             dataDic = inputQueue.get()
@@ -24,7 +26,7 @@ class ProcessManage():
                 outputQueue.put("end")
                 break
             elif dataDic.get("type") == "auto_model":
-                AutoModelProcess.process_AutoModel_datas(dataDicts=dataDic, logDriver=logDriver)
+                ModelProcessManage.process_AutoModel_datas(dataDict=dataDic, logDriver=logDriver)
             elif dataDic.get("type") == "settings":
                 pass
             outputQueue.put(dataDic)

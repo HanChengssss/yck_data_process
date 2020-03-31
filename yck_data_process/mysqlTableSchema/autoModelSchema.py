@@ -1,11 +1,13 @@
 import pymysql
 from yck_data_process import settings
 import simplejson
-
+from yck_data_process.settingsManage import SettingsManage
 
 class MysqlTableSchema():
     basePath = "D:\YCK\代码\yck_data_process\yck_data_process\mysqlTableSchema\\{}"
-
+    sm = SettingsManage()
+    tableManage = sm.get_tablesSettingsInstance()
+    dbManage = sm.get_dbSettingInstance()
     @staticmethod
     def get_table_schema(mysqlConn, tableNameList, dbName):
         cursor = mysqlConn.cursor()
@@ -27,9 +29,8 @@ class MysqlTableSchema():
 
     @staticmethod
     def get_table_name_list(dataType):
-        if dataType == "auto_model":
-            table_name_list = settings.auto_model_tables
-            table_name_list.append("config_vdatabase_yck_major_info")
+        table_name_list = MysqlTableSchema.tableManage.get_tables(dataType)
+        table_name_list.append("config_vdatabase_yck_major_info")
         return table_name_list
 
     @staticmethod
@@ -47,9 +48,9 @@ class MysqlTableSchema():
 
     @staticmethod
     def manage():
-        mysqlConn = pymysql.connect(**settings.mysqlSchemaParams)
-        table_name_list = MysqlTableSchema.get_table_name_list(dataType="auto_model")
-        dbName = "yck-data-center"
+        mysqlConn = pymysql.connect(**MysqlTableSchema.dbManage.get_schemaMysqlParams())
+        table_name_list = MysqlTableSchema.get_table_name_list(dataType="model")
+        dbName = MysqlTableSchema.dbManage.get_mysqlDBName()
         tableSchemaDicList = MysqlTableSchema.get_table_schema(mysqlConn, table_name_list, dbName)
         MysqlTableSchema.save_to_json(tableSchemaDicList, "autoModelSchemaInfo.json")
 

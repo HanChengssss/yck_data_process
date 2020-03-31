@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import random
 from datetime import datetime
 from multiprocessing import Queue
-from yck_data_process import settings
+from yck_data_process.settingsManage import SettingsManage
 
 
 
@@ -19,14 +19,16 @@ class InputDataMange():
         :return:
         '''
         # 创建集合的配置
-        client = MongoClient(**settings.mongoClientParams)
+        sm = SettingsManage()
+        dbManage = sm.get_dbSettingInstance()
+        client = MongoClient(**dbManage.get_mongoClientParams())
         try:
-            db = client.get_database(settings.mongodb)
+            db = client.get_database(dbManage.get_mongodb())
             collList = db.collection_names()
             # 如果现有集合中没有，新建一个集合
-            for coll in settings.mongodbCollNameDict.values():
+            for coll in dbManage.get_mongodbCollNameDict().values():
                 if coll not in collList:
-                    collection = db.create_collection(name=coll, **settings.mongodbCollParm)  # 创建一个集合
+                    collection = db.create_collection(name=coll, **dbManage.get_creatMongodbCollParm())  # 创建一个集合
                 else:
                     collection = db.get_collection(name=coll)  # 获取一个集合对象
                 InputDataMange.find_data(collection, inputQueue)  # 将数据装载到队列中

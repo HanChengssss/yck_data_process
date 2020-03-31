@@ -1,7 +1,7 @@
 from yck_data_process.testDriver.toolTestDriver import ToolTestDriver
 from yck_data_process.process.autoModelProcess import ModelProcessManage
 from yck_data_process.process.autoModelProcess import *
-from yck_data_process import settings
+from yck_data_process.settingsManage import SettingsManage
 import pymongo
 from yck_data_process.logingDriver import Logger
 '''
@@ -13,9 +13,11 @@ from yck_data_process.logingDriver import Logger
 class ProcessTestDriver():
     @staticmethod
     def test_driver():
-        mongoConn = pymongo.MongoClient(**settings.mongoClientParams)
-        db = mongoConn.get_database(settings.mongodb)
-        cursor = ToolTestDriver.get_mongo_data(db, settings.mongodbCollNameDict.get("auto_model"))
+        sm = SettingsManage()
+        dbManage = sm.get_dbSettingInstance()
+        mongoConn = pymongo.MongoClient(**dbManage.get_mongoClientParams())
+        db = mongoConn.get_database(dbManage.get_mongodb())
+        cursor = ToolTestDriver.get_mongo_data(db, dbManage.get_mongodbCollNameDict.get("auto_model"))
         logDriver = Logger("D:\YCK\代码\yck_data_process\yck_data_process\log_dir\modelProcess.log", level='warning')
         for dataDic in cursor:
             print(dataDic)

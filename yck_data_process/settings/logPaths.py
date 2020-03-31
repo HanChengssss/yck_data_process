@@ -7,38 +7,40 @@ logDirNameDic = {
 }
 
 projectBasePathDic = {
-    "local": "D:\YCK\代码\yck_data_process\yck_data_process",
+    "local": "D:\YCK\代码\yck_data_process",
 }
 
 class LogPathManage():
+    def __init__(self, model):
+        self.model = model
 
-    @staticmethod
-    def get_logDirName(model):
-        logDirName = logDirNameDic.get("testLog") if model == "test" else logDirNameDic.get("normalLog")
+    def get_logDirName(self):
+        logDirName = logDirNameDic.get("testLog") if self.model == "test" else logDirNameDic.get("normalLog")
         if not logDirName:
             raise Exception("logDirName not exist !")
         return logDirName
 
-    @staticmethod
-    def get_projectBasePath():
+    def get_projectBasePath(self):
         # 检查文件夹是否存在
         projectBasePath = None
         for pbp in projectBasePathDic.values():
             if os.path.exists(pbp):
                 projectBasePath = pbp
+                break
         if not projectBasePath:
             raise Exception("projectBasePath not exist !")
         return projectBasePath
 
-    @staticmethod
-    def get_logDirFullPath(model):
+    def get_logDirFullPath(self):
         logDirFullPath = None
-        projectBasePath = LogPathManage.get_projectBasePath()
-        logDirName = LogPathManage.get_logDirName(model)
+        projectBasePath = self.get_projectBasePath()
+        logDirName = self.get_logDirName()
         for relPath, dirs, files in os.walk(projectBasePath):
             if logDirName in dirs:
                 logDirFullPath = os.path.join(projectBasePath, relPath, logDirName)
                 break
+        if not logDirFullPath:
+            raise Exception("logDirFullPath not exist !")
         return logDirFullPath
 
 

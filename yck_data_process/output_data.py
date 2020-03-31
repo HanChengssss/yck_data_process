@@ -2,13 +2,14 @@
 # -*-encoding: utf-8-*-
 # author:Hancheng
 # version:0.1
-from yck_data_process import settings
+from yck_data_process.settingsManage import SettingsManage
 import pymysql
 from yck_data_process.logingDriver import Logger
 import pymongo
 from yck_data_process.pipelines.autoModelOutput import AutoModelPipeline
 from yck_data_process.pipelines.Tools import ToolSave
 from tqdm import tqdm
+
 
 class OutPutDataManage():
     @staticmethod
@@ -19,10 +20,14 @@ class OutPutDataManage():
         :param outputQueue:
         :return:
         '''
-        conn = pymysql.connect(**settings.testMysqlParams)
-        log = Logger(filename="D:\YCK\代码\yck_data_process\yck_data_process\log_dir\outoutData.log", level='error')
-        mongoConn = pymongo.MongoClient(**settings.mongoClientParams)
-        db = mongoConn.get_database(settings.mongodb)
+        sm = SettingsManage()
+        dbMange = sm.get_dbSettingInstance()
+        logPathMange = sm.get_logSettingsInstance()
+        conn = pymysql.connect(**dbMange.get_saveMysqlNormalParams())
+        logDirFullPath = logPathMange.get_logDirFullPath()
+        log = Logger(filename="{}\outoutData.log".format(logDirFullPath), level='error')
+        mongoConn = pymongo.MongoClient(**dbMange.get_mongoClientParams())
+        db = mongoConn.get_database(**dbMange.get_mongodb())
         qSize = outputQueue.qsize()
         tq = tqdm(total=qSize, desc="数据处理进度：")
         try:
@@ -33,7 +38,7 @@ class OutPutDataManage():
                     break
                 try:
                     type = dataDic.get("type")
-                    coll_name = settings.mongodbCollNameDict.get(type)
+                    coll_name = dbMange.get_mongodbCollNameDict().get(type)
                     # 车型库数据存储逻辑
                     if type == "auto_model":
                         AutoModelPipeline.process_dataDic(dataDic=dataDic, mysqlConn=conn)

@@ -37,9 +37,15 @@ test2MysqlTest = dict(
 mongodbCollNameDict = {"auto_model": "autoModelCollection"}
 
 # mongodb 数据库
-testMongodb = "test"
-normalMongodb = "normal"
+mongoDBNameDic = {
+    "normal": "normal",
+    "test": "test"
+}
 
+mysqlDBNameDic = {
+    "normal": "yck-data-center",
+    "test": "test2"
+}
 # 创建集合的设置
 createMongodbCollParm = dict(
     capped=True,
@@ -64,8 +70,7 @@ class DbsManage():
         else:
             return schemaMysqlNormal
 
-
-    def get_dcMysqlNormalParams(self):
+    def get_saveMysqlNormalParams(self):
         if self.model == "test":
             return test2MysqlTest
         else:
@@ -75,10 +80,14 @@ class DbsManage():
         return mongodbCollNameDict
 
     def get_mongodb(self):
-        if self.model == "test":
-            return testMongodb
-        else:
-            return normalMongodb
+        if self.model not in mongoDBNameDic:
+            raise Exception("{} model in mongoDBNameDic not exist!".format(self.model))
+        return mongoDBNameDic.get(self.model)
+
+    def get_mysqlDBName(self):
+        if self.model not in mysqlDBNameDic:
+            raise Exception("{} model in mysqlDBNameDic not exist!")
+        return mysqlDBNameDic.get(self.model)
 
     def get_creatMongodbCollParm(self):
         return createMongodbCollParm
