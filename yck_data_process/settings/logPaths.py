@@ -7,53 +7,43 @@ logDirNameDic = {
 }
 
 projectBasePathDic = {
-    "local": "D:\YCK\代码\yck_data_process\yck_data_process\dir",
+    "local": "D:\YCK\代码\yck_data_process\yck_data_process",
 }
 
 class LogPathManage():
 
     @staticmethod
     def get_logDirName(model):
-        return logDirNameDic.get("testLog") if model == "test" else logDirNameDic.get("normalLog")
+        logDirName = logDirNameDic.get("testLog") if model == "test" else logDirNameDic.get("normalLog")
+        if not logDirName:
+            raise Exception("logDirName not exist !")
+        return logDirName
 
     @staticmethod
     def get_projectBasePath():
         # 检查文件夹是否存在
-        projectBasePathExistResultDic = {
-            "isExist": False,
-            "projectBasePath": None
-        }
-        for projectBasePath in projectBasePathDic.values():
-            if os.path.exists(projectBasePath):
-                projectBasePathExistResultDic["isExist"] = True
-                projectBasePathExistResultDic["projectBasePath"] = projectBasePath
-        return projectBasePathExistResultDic
-
+        projectBasePath = None
+        for pbp in projectBasePathDic.values():
+            if os.path.exists(pbp):
+                projectBasePath = pbp
+        if not projectBasePath:
+            raise Exception("projectBasePath not exist !")
+        return projectBasePath
 
     @staticmethod
-    def get_logDirFullPathDic(model):
-        findDirFullPathResult = {
-            "logDirFullPath": None,
-            "isFound": False
-        }
-        logdirName = LogPathManage.get_logDirName(model)
-        try:
-            projectBasePathExistResultDic = LogPathManage.get_projectBasePath()
-            assert projectBasePathExistResultDic.get("isExist")
-            projectBasePath = projectBasePathExistResultDic.get("projectBasePath")
-            for relPath, dirs, files in os.walk(projectBasePath):
-                if logdirName in dirs:
-                    logDirFullPath = os.path.join(projectBasePath, relPath, logdirName)
-                    findDirFullPathResult["logDirFullPath"] = logDirFullPath
-                    findDirFullPathResult["isFound"] = True
-                    break
-        except:
-            print("projectBasePath no exist!")
-        finally:
-            return findDirFullPathResult
+    def get_logDirFullPath(model):
+        logDirFullPath = None
+        projectBasePath = LogPathManage.get_projectBasePath()
+        logDirName = LogPathManage.get_logDirName(model)
+        for relPath, dirs, files in os.walk(projectBasePath):
+            if logDirName in dirs:
+                logDirFullPath = os.path.join(projectBasePath, relPath, logDirName)
+                break
+        return logDirFullPath
+
 
 
 
 if __name__ == '__main__':
-    ret = LogPathManage.get_logDirFullPathDic(model="normal")
+    ret = LogPathManage.get_logDirFullPath(model="normal")
     print(ret)
