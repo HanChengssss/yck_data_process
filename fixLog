@@ -30,7 +30,9 @@ todo 方法中有很多if判断和for循环可以尝试优化写法
 
 todo 对che300 settings 中的字段进行检测，如果有大的改动需要预警 如燃油类型。
 
+todo assert 断言异常使用exec捕获不到的问题待研究。
 
+todo 文件路径问题待深入
 
 
 
