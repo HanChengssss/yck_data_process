@@ -33,15 +33,18 @@ class AutoModelPipeline(object):
         model_id = data.get("model_id")
         ret = ToolSave.test_exist(idField=model_id, idFieldSet=idFieldSet)
         if ret:
-            # todo 此处的执行效率待优化
-            data.pop("add_time")
-            update_time = data.pop("update_time")
+            update_time = None
+            if "add_time" in data:
+                data.pop("add_time")
+            if "update_time" in data:
+                update_time = data.pop("update_time")
             new_data = ToolSave.sort_item(data)
             old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysqlConn=mysqlConn, idField="model_id")
             old_data = ToolSave.sort_item(old_data)
             compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
             if not compare_ret:
-                data["update_time"] = update_time
+                if update_time:
+                    data["update_time"] = update_time
                 item["idField"] = "model_id"
                 updateList.append(item)
             else:
