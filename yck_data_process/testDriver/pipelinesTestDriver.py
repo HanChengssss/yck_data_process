@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import pymysql
-from yck_data_process import settings
+from yck_data_process.settingsManage import SettingsManage
 from multiprocessing import Queue
 from yck_data_process.output_data import OutPutDataManage
 from yck_data_process.testDriver.toolTestDriver import ToolTestDriver
@@ -16,11 +16,20 @@ class AutoModelTestDriver():
         '''
         先将测试数据库中的车型库数据导入mongod
         '''
-        mysqlConn = pymysql.connect(**settings.testMysqlParams)
-        mongoConn = MongoClient(**settings.mongoClientParams)
-        db = mongoConn.get_database(settings.mongodb)
+        sm = SettingsManage()
+        dbManage = sm.get_dbSettingInstance()
+        tableMange = sm.get_tablesSettingsInstance()
+        mysqlParms = dbManage.get_saveMysqlNormalParams()
+        mysqlConn = pymysql.connect(**mysqlParms)
+
+        mongoClientParams = dbManage.get_mongoClientParams()
+        mongoConn = MongoClient(**mongoClientParams)
+        dbName = dbManage.get_mongodb()
+        db = mongoConn.get_database(dbName)
+
+        tables = tableMange.get_tables("model")
         dataDicList = []
-        for table in settings.auto_model_tables:
+        for table in tables:
             records = ToolTestDriver.get_mysql_data(mysqlConn=mysqlConn, table=table)
             dataList = []
             for data in records:
@@ -68,9 +77,15 @@ class AutoModelTestDriver():
         测试存储过程是否有bug
         :return:
         '''
-        mongoConn = MongoClient(settings.mongoClientParams)
-        db = mongoConn.get_database(settings.mongodb)
-        q = AutoModelTestDriver.put_data_queue(db, settings.mongodbCollNameDict.get("auto_model"))
+        sm = SettingsManage()
+        dbManage = sm.get_dbSettingInstance()
+
+        mongoClientParams = dbManage.get_mongoClientParams()
+        mongoConn = MongoClient(**mongoClientParams)
+        dbName = dbManage.get_mongodb()
+        db = mongoConn.get_database(dbName)
+        collNameDic = dbManage.get_mongodbCollNameDict()
+        q = AutoModelTestDriver.put_data_queue(db, collNameDic.get("auto_model"))
         OutPutDataManage.dataOutput(q)
         mongoConn.close()
 

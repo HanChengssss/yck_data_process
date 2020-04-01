@@ -1,38 +1,41 @@
-schemaMysqlNormal = dict(
+schemaMysql = {
+    "test": dict(
     host="192.168.0.10",
     port=3306,
     user="root",
     passwd="000000",
     db="information_schema",
     charset="utf8",
-)
+    ),
+    "normal": dict(
+    host="localhost",
+    port=3306,
+    user="root",
+    passwd="123456",
+    db="information_schema",
+    charset="utf8",
+    )
+}
 
-dcMysqlNormal = dict(
+dataSaveMysql = {
+    "normal": dict(
     host="192.168.0.10",
     port=3306,
     user="root",
     passwd="000000",
     db="yck-data-center",
     charset="utf8",
-)
-
-schemaMysqlTest = dict(
-    host="localhost",
-    port=3306,
-    user="root",
-    passwd="123456",
-    db="information_schema",
-    charset="utf8",
-)
-
-test2MysqlTest = dict(
+    ),
+    "test": dict(
     host="localhost",
     port=3306,
     user="root",
     passwd="123456",
     db="test2",
     charset="utf8",
-)
+    )
+}
+
 # mongodb 类型集合映射表
 mongodbCollNameDict = {"auto_model": "autoModelCollection"}
 
@@ -46,6 +49,7 @@ mysqlDBNameDic = {
     "normal": "yck-data-center",
     "test": "test2"
 }
+
 # 创建集合的设置
 createMongodbCollParm = dict(
     capped=True,
@@ -54,10 +58,12 @@ createMongodbCollParm = dict(
 )
 
 # mongodb 连接信息
-mongoClientParams = dict(
+mongoClientParams = {
+    "test": dict(
             host="localhost",
             port=27017
         )
+}
 
 
 class DbsManage():
@@ -65,16 +71,14 @@ class DbsManage():
         self.model = model
 
     def get_schemaMysqlParams(self):
-        if self.model == "test":
-            return schemaMysqlTest
-        else:
-            return schemaMysqlNormal
+        if self.model not in schemaMysql:
+            raise Exception("{} model in schemaMysql not exist!".format(self.model))
+        return schemaMysql.get(self.model)
 
     def get_saveMysqlNormalParams(self):
-        if self.model == "test":
-            return test2MysqlTest
-        else:
-            return dcMysqlNormal
+        if self.model not in dataSaveMysql:
+            raise Exception("{} model in get_saveMysqlNormalParams not exist!".format(self.model))
+        return dataSaveMysql.get(self.model)
 
     def get_mongodbCollNameDict(self):
         return mongodbCollNameDict
@@ -86,14 +90,13 @@ class DbsManage():
 
     def get_mysqlDBName(self):
         if self.model not in mysqlDBNameDic:
-            raise Exception("{} model in mysqlDBNameDic not exist!")
+            raise Exception("{} model in mysqlDBNameDic not exist!".format(self.model))
         return mysqlDBNameDic.get(self.model)
 
     def get_creatMongodbCollParm(self):
         return createMongodbCollParm
 
     def get_mongoClientParams(self):
-        if self.model == "test":
-            return mongodbCollNameDict
-        else:
-            return mongodbCollNameDict
+        if self.model not in mongoClientParams:
+            raise Exception("{} model in mongoClientParams not exist!".format(self.model))
+        return mongoClientParams.get(self.model)

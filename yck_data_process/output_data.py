@@ -27,7 +27,7 @@ class OutPutDataManage():
         logDirFullPath = logPathMange.get_logDirFullPath()
         log = Logger(filename="{}\outoutData.log".format(logDirFullPath), level='error')
         mongoConn = pymongo.MongoClient(**dbMange.get_mongoClientParams())
-        db = mongoConn.get_database(**dbMange.get_mongodb())
+        db = mongoConn.get_database(dbMange.get_mongodb())
         qSize = outputQueue.qsize()
         tq = tqdm(total=qSize, desc="数据处理进度：")
         try:

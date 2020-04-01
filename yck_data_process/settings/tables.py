@@ -13,9 +13,13 @@ auto_model_tables = [
     "config_wyauto_major_info"
 ]
 
+mysqlTablesDic = {
+    "model": auto_model_tables
+}
+
 
 class TablesManage():
-
     def get_tables(self, dataType):
-        if dataType == "model":
-            return auto_model_tables
+        if dataType not in mysqlTablesDic:
+            raise Exception("{} dataType in mysqlTablesDic not exist!".format(dataType))
+        return mysqlTablesDic.get(dataType)

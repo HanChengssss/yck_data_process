@@ -22,7 +22,20 @@ todo 在测试的时候出现无厘头的bug，貌似跟字符串的类型有关
 解决7：已解决
 
 todo python 文件搜索学习
-https://blog.csdn.net/tzh_linux/article/details/69950484
+解决8：https://blog.csdn.net/tzh_linux/article/details/69950484
+
+解决9：已学会给定根目录，寻找指定文件夹。
+
+解决10：process模块测试完毕。
+
+解决11：优化数据库配置,mysql表格管理模块获取参数的方式。
+
+解决12：output_data完成
+
+解决13：manage 模块运行日志
+
+todo 整体测试
+解决14：已测试，小部分数据有问题正在排查。。。
 
 todo 处理的字段中存在大量的None、空字符、0需要对这些字符进行统一的处理。
 

@@ -8,8 +8,9 @@ from yck_data_process.processManage import ProcessManage
 from yck_data_process.input_data import InputDataMange
 from yck_data_process.output_data import OutPutDataManage
 from functools import wraps
-
-
+from yck_data_process.logingDriver import Logger
+from yck_data_process.settingsManage import SettingsManage
+from datetime import datetime
 class Manage(object):
 
     @staticmethod
@@ -51,7 +52,16 @@ def fn_timer(function):
 
 @fn_timer
 def run_from_muiltiprocess():
-    Manage.run_from_muiltiprocess()
+    sm = SettingsManage()
+    logDirManage = sm.get_logSettingsInstance()
+    logDriver = Logger("{}\manage.log".format(logDirManage.get_logDirFullPath()), level='info')
+    try:
+        logDriver.logger.info("start")
+        Manage.run_from_muiltiprocess()
+    except Exception as e:
+        logDriver.logger.error(str(e))
+    finally:
+        logDriver.logger.info("end")
 
 
 if __name__ == '__main__':
