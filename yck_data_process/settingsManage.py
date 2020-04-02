@@ -9,7 +9,7 @@ from yck_data_process.settings.tables import TablesManage
 from yck_data_process.settings.logPaths import LogPathManage
 
 # 全局模式
-MODEL = "test"
+MODEL = "normal"
 
 class SettingsManage():
 

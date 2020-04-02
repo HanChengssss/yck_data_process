@@ -91,7 +91,8 @@ class AutoModelTestDriver():
 
 
 if __name__ == '__main__':
-    AutoModelTestDriver.test_driver()
+    # AutoModelTestDriver.test_driver()
+    AutoModelTestDriver.autodata_input_mongo()
 
 
 

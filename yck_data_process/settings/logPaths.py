@@ -8,6 +8,7 @@ logDirNameDic = {
 
 projectBasePathDic = {
     "local": "D:\YCK\代码\yck_data_process",
+    "normal": "D:\\Users\Desktop\yck_data_process"
 }
 
 class LogPathManage():
@@ -47,5 +48,4 @@ class LogPathManage():
 
 
 if __name__ == '__main__':
-    ret = LogPathManage.get_logDirFullPath(model="normal")
-    print(ret)
+    pass
