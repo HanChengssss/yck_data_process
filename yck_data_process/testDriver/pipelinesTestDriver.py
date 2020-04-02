@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 import pymysql
-from yck_data_process.settingsManage import SettingsManage
+from yck_data_process.settingsManage import SettingsManage, MODEL
 from multiprocessing import Queue
 from yck_data_process.output_data import OutPutDataManage
 from yck_data_process.testDriver.toolTestDriver import ToolTestDriver
@@ -16,7 +16,7 @@ class AutoModelTestDriver():
         '''
         先将测试数据库中的车型库数据导入mongod
         '''
-        sm = SettingsManage()
+        sm = SettingsManage(model=MODEL)
         dbManage = sm.get_dbSettingInstance()
         tableMange = sm.get_tablesSettingsInstance()
         mysqlParms = dbManage.get_saveMysqlNormalParams()
@@ -77,7 +77,7 @@ class AutoModelTestDriver():
         测试存储过程是否有bug
         :return:
         '''
-        sm = SettingsManage()
+        sm = SettingsManage(model=MODEL)
         dbManage = sm.get_dbSettingInstance()
 
         mongoClientParams = dbManage.get_mongoClientParams()

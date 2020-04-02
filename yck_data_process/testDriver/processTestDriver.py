@@ -1,7 +1,7 @@
 from yck_data_process.testDriver.toolTestDriver import ToolTestDriver
 from yck_data_process.process.autoModelProcess import ModelProcessManage
 from yck_data_process.process.autoModelProcess import *
-from yck_data_process.settingsManage import SettingsManage
+from yck_data_process.settingsManage import SettingsManage, MODEL
 import pymongo
 from yck_data_process.logingDriver import Logger
 '''
@@ -14,7 +14,7 @@ from yck_data_process.logingDriver import Logger
 class ProcessTestDriver():
     @staticmethod
     def test_driver():
-        sm = SettingsManage()
+        sm = SettingsManage(model=MODEL)
         dbManage = sm.get_dbSettingInstance()
         logPathMange = sm.get_logSettingsInstance()
 

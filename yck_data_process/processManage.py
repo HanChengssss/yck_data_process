@@ -1,6 +1,6 @@
 from yck_data_process.logingDriver import Logger
 from yck_data_process.process.autoModelProcess import ModelProcessManage
-from yck_data_process.settingsManage import SettingsManage
+from yck_data_process.settingsManage import SettingsManage, MODEL
 
 class ProcessManage():
     '''
@@ -13,7 +13,7 @@ class ProcessManage():
         :param outputQueue: 将处理完成的数据放入该队列
         :return:
         '''
-        sm = SettingsManage()
+        sm = SettingsManage(model=MODEL)
         logDirManage = sm.get_logSettingsInstance()
         # 加载日志记录模块，记录处理过程中出现的异常
         logDriver = Logger("{}\modelProcess.log".format(logDirManage.get_logDirFullPath()), level='warning')

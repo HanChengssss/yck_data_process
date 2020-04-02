@@ -62,7 +62,11 @@ mongoClientParams = {
     "test": dict(
             host="localhost",
             port=27017
-        )
+        ),
+    "normal": dict(
+            host="192.168.0.10",
+            port=27017
+        ),
 }
 
 

@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import random
 from datetime import datetime
 from multiprocessing import Queue
-from yck_data_process.settingsManage import SettingsManage
+from yck_data_process.settingsManage import SettingsManage, MODEL
 
 
 
@@ -19,7 +19,7 @@ class InputDataMange():
         :return:
         '''
         # 创建集合的配置
-        sm = SettingsManage()
+        sm = SettingsManage(model=MODEL)
         dbManage = sm.get_dbSettingInstance()
         client = MongoClient(**dbManage.get_mongoClientParams())
         try:

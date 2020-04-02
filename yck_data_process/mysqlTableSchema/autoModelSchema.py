@@ -1,11 +1,11 @@
 import pymysql
 from yck_data_process import settings
 import simplejson
-from yck_data_process.settingsManage import SettingsManage
+from yck_data_process.settingsManage import SettingsManage, MODEL
 
 class MysqlTableSchema():
     basePath = "D:\YCK\代码\yck_data_process\yck_data_process\mysqlTableSchema\\{}"
-    sm = SettingsManage()
+    sm = SettingsManage(model=MODEL)
     tableManage = sm.get_tablesSettingsInstance()
     dbManage = sm.get_dbSettingInstance()
     @staticmethod

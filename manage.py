@@ -9,7 +9,7 @@ from yck_data_process.input_data import InputDataMange
 from yck_data_process.output_data import OutPutDataManage
 from functools import wraps
 from yck_data_process.logingDriver import Logger
-from yck_data_process.settingsManage import SettingsManage
+from yck_data_process.settingsManage import SettingsManage, MODEL
 from datetime import datetime
 class Manage(object):
 
@@ -52,7 +52,7 @@ def fn_timer(function):
 
 @fn_timer
 def run_from_muiltiprocess():
-    sm = SettingsManage()
+    sm = SettingsManage(model=MODEL)
     logDirManage = sm.get_logSettingsInstance()
     logDriver = Logger("{}\manage.log".format(logDirManage.get_logDirFullPath()), level='info')
     try:

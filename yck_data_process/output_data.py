@@ -2,7 +2,7 @@
 # -*-encoding: utf-8-*-
 # author:Hancheng
 # version:0.1
-from yck_data_process.settingsManage import SettingsManage
+from yck_data_process.settingsManage import SettingsManage, MODEL
 import pymysql
 from yck_data_process.logingDriver import Logger
 import pymongo
@@ -20,7 +20,7 @@ class OutPutDataManage():
         :param outputQueue:
         :return:
         '''
-        sm = SettingsManage()
+        sm = SettingsManage(model=MODEL)
         dbMange = sm.get_dbSettingInstance()
         logPathMange = sm.get_logSettingsInstance()
         conn = pymysql.connect(**dbMange.get_saveMysqlNormalParams())

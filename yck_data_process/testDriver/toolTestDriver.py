@@ -1,5 +1,5 @@
 import pymysql
-from yck_data_process import settings
+from yck_data_process.settingsManage import SettingsManage, MODEL
 from pymongo import MongoClient
 import random
 from datetime import datetime
@@ -98,8 +98,10 @@ class ToolTestDriver():
         :return: 返回collection对象
         '''
         collList = db.collection_names()
+        sm = SettingsManage(model=MODEL)
+        dbManage = sm.get_dbSettingInstance()
         if coll_name not in collList:
-            collection = db.create_collection(name=coll_name, **settings.mongodbCollParm)  # 创建一个集合
+            collection = db.create_collection(name=coll_name, **dbManage.get_creatMongodbCollParm())  # 创建一个集合
         else:
             collection = db.get_collection(name=coll_name)  # 获取一个集合对象
         return collection
@@ -121,8 +123,10 @@ class RandomProdictData():
         获取一个集合对象，如果不存在则创建一个
         :param coll_name:
         '''
-        self.client = MongoClient(**settings.mongoClientParams)
-        self.db = self.client.get_database(settings.mongodb)
+        sm = SettingsManage(model=MODEL)
+        dbManage = sm.get_dbSettingInstance()
+        self.client = MongoClient(**dbManage.get_mongoClientParams())
+        self.db = self.client.get_database(dbManage.get_mongodb())
         collList = self.db.collection_names()
         if coll_name not in collList:
             self.collection = self.db.create_collection(name=coll_name)  # 创建一个集合

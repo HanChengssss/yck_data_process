@@ -4,9 +4,9 @@ import pymysql
 import traceback
 import datetime
 from yck_data_process import logingDriver
-# from pipelinesTestDriver import ToolTestDriver
 import pymongo
-from yck_data_process import settings
+from yck_data_process.settingsManage import SettingsManage, MODEL
+
 # 创建一个工具类，将工具函数与存储逻辑分离
 class ToolSave():
 
@@ -268,10 +268,16 @@ class ToolSave():
         :param errorMsg: 错误原因 <String>
         :return:
         '''
-        log = logingDriver.Logger(filename="D:\YCK\代码\yck_data_process\yck_data_process\log_dir\dataError.log", level='error')
+        sm = SettingsManage(model=MODEL)
+        dbManage = sm.get_dbSettingInstance()
+        logPathManage = sm.get_logSettingsInstance()
+        logDirFullPath = logPathManage.get_logDirFullPath()
+
+        log = logingDriver.Logger(filename="{}\dataError.log".format(logDirFullPath), level='error')
         log.logger.error("{} 的数据存储失败，错误信息{}".format(table, errorMsg))
-        mongoConn = pymongo.MongoClient(**settings.mongoClientParams)
-        db = mongoConn.get_database(settings.mongodb)
+
+        mongoConn = pymongo.MongoClient(**dbManage.get_mongoClientParams())
+        db = mongoConn.get_database(dbManage.get_mongodb())
         ToolSave.insert_mongo_one(db, "error", item, table)
         c = db.get_collection()
         c.insert()
@@ -303,9 +309,13 @@ class ToolSave():
         :param coll_name: mongodb中集合的名称
         :return: 返回collection对象
         '''
+        sm = SettingsManage(model=MODEL)
+        dbManage = sm.get_dbSettingInstance()
+
         collList = db.collection_names()
+
         if coll_name not in collList:
-            collection = db.create_collection(name=coll_name, **settings.mongodbCollParm)  # 创建一个集合
+            collection = db.create_collection(name=coll_name, **dbManage.get_creatMongodbCollParm())  # 创建一个集合
         else:
             collection = db.get_collection(name=coll_name)  # 获取一个集合对象
         return collection
