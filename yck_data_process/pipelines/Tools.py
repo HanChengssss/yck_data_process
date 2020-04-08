@@ -280,13 +280,13 @@ class ToolSave():
 
         mongoConn = pymongo.MongoClient(**dbManage.get_mongoClientParams())
         db = mongoConn.get_database(dbManage.get_mongodb())
-        ToolSave.insert_mongo_one(db, "error", item, table)
+        ToolSave.insert_mongo_one(db, "error", item, table,)
         c = db.get_collection()
         c.insert()
         mongoConn.close()
 
     @staticmethod
-    def insert_mongo_one(mongodb, coll_name, item, table):
+    def insert_mongo_one(mongodb, coll_name, item, table, type):
         '''
         将一条doc插入mongodb
         :param mongodb: mongodb数据库连接（已选择数据库）
@@ -296,7 +296,7 @@ class ToolSave():
         :return:
         '''
         collection = ToolSave.get_mongo_collection(mongodb, coll_name)
-        dataDic = ToolSave.package_data(item, table, type="auto_model")
+        dataDic = ToolSave.package_data(item, table, type=type)
         try:
             collection.insert(dataDic)
         finally:

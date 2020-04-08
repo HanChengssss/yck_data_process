@@ -40,7 +40,7 @@ class OutPutDataManage():
                     type = dataDic.get("type")
                     coll_name = dbMange.get_mongodbCollNameDict().get(type)
                     # 车型库数据存储逻辑
-                    if type == "auto_model":
+                    if type == "model":
                         AutoModelPipeline.process_dataDic(dataDic=dataDic, mysqlConn=conn)
                     ToolSave.update_mongodb(mongodb=db, data_id=dataDic["_id"], coll_name=coll_name)
                 except Exception as e:

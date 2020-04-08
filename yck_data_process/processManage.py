@@ -25,7 +25,7 @@ class ProcessManage():
                 print("process_Manage is end")
                 outputQueue.put("end")
                 break
-            elif dataDic.get("type") == "auto_model":
+            elif dataDic.get("type") == "model":
                 ModelProcessManage.process_AutoModel_datas(dataDict=dataDic, logDriver=logDriver)
             elif dataDic.get("type") == "settings":
                 pass
