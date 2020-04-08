@@ -8,7 +8,7 @@ logDirNameDic = {
 
 projectBasePathDic = {
     "local": "D:\YCK\代码\yck_data_process",
-    "normal": "D:\\Users\Desktop\yck_data_process"
+    "normal": "D:\python\yck_data_process"
 }
 
 class LogPathManage():
