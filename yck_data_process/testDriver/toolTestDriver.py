@@ -10,7 +10,7 @@ class ToolTestDriver():
     测试工具：提供各种测试用的工具
     '''
     @staticmethod
-    def get_mysql_data(mysqlConn, table):
+    def get_mysql_data(mysqlConn, query_sql):
         '''
         返回制定表格中所有的数据
         :param mysqlConn:MySQL 连接
@@ -18,10 +18,10 @@ class ToolTestDriver():
         :return: 数据字典列表 [dataa, datab, datac ....]
         '''
         cursor = mysqlConn.cursor(pymysql.cursors.DictCursor)
-        print("==========table", table)
+        # print("==========table", table)
         try:
-            sql = "SELECT * FROM {TABLE}".format(TABLE=table)
-            cursor.execute(sql)
+            # sql = "SELECT * FROM {TABLE}".format(TABLE=table)
+            cursor.execute(query_sql)
             records = cursor.fetchall()
             print("get_mysql_data finish!")
             return records
@@ -46,13 +46,33 @@ class ToolTestDriver():
         dataDic["type"] = type
         dataDic["table"] = table
         for data in records:
-            if "id" in data:
-                data.pop("id")
+            # if "id" in data:
+            #     data.pop("id")
             item = dict()
             item["data"] = data
             dataList.append(item)
-        print("package_data finish!")
+        # print("package_data finish!")
+        # print(dataDic)
         return dataDic
+
+    @staticmethod
+    def package_data_list(all_records, table, type):
+        data_dic_list = []
+        data_list = []
+        for data in all_records:
+            data_list.append(data)
+            all_records.remove(data)
+            if len(data_list) >= 1000:
+                data_dic = ToolTestDriver.package_data(records=data_list, table=table, type=type)
+                data_dic_list.append(data_dic)
+                data_list.clear()
+        if all_records:
+            data_dic = ToolTestDriver.package_data(records=all_records, table=table, type=type)
+            data_dic_list.append(data_dic)
+            data_list.clear()
+        return data_dic_list
+
+
 
     @staticmethod
     def insert_mongo_many(mongodb, coll_name, dataDicList):

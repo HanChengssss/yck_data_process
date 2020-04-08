@@ -132,6 +132,8 @@ class ToolSave():
             data = item["data"]
         else:
             data = item
+        if "id" in data:
+            data.pop("id")
         keys = "=%s,".join(data.keys()) + "=%s"
         sql = 'UPDATE {table} SET {keys} WHERE {idField} = "{filedId}"'.format(table=table, keys=keys, idField=idField, filedId=data[idField])
         cursor = mysqlConn.cursor()

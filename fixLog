@@ -47,6 +47,14 @@ todo 正式环境测试
 解决：正式环境测试中，待解决：mongodb无法使用正式环境IP+端口号链接，Git安装
 解决16：MongoDB 使用IP连接
 
+todo 数据处理模块Mange可以使用继承
+
+todo dataType命名待规范
+
+todo logdriver 还可以按照调用模块的名称去封装
+
+todo 数据提取和插入函数通用性优化
+
 todo 正式环境测试进度条不显示
 
 todo 处理的字段中存在大量的None、空字符、0需要对这些字符进行统一的处理。
@@ -59,7 +67,7 @@ todo assert 断言异常使用exec捕获不到的问题待研究。
 
 todo 文件路径问题待深入
 
-todo dataType命名待规范
+todo packgedata 执行效率待优化
 
 
 
