@@ -36,11 +36,7 @@ dataSaveMysql = {
     )
 }
 
-#
-'''
-mongodb 类型:集合
-车型库 model:model_coll
-'''
+# mongodb 类型:集合
 mongodbCollNameDict = {"model": "model_coll",  # 车型库
                        "sale": "sale_coll",  # 销量
                        "setting": "setting_coll",  # 配置信息
