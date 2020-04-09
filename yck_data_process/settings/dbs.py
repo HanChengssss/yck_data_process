@@ -37,7 +37,7 @@ dataSaveMysql = {
 }
 
 # mongodb 类型集合映射表
-mongodbCollNameDict = {"model": "model"}
+mongodbCollNameDict = {"model": "model_coll"}
 
 # mongodb 数据库
 mongoDBNameDic = {
