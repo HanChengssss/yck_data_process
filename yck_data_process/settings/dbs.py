@@ -36,8 +36,21 @@ dataSaveMysql = {
     )
 }
 
-# mongodb 类型集合映射表
-mongodbCollNameDict = {"model": "model_coll"}
+#
+'''
+mongodb 类型:集合
+车型库 model:model_coll
+'''
+mongodbCollNameDict = {"model": "model_coll",  # 车型库
+                       "sale": "sale_coll",  # 销量
+                       "setting": "setting_coll",  # 配置信息
+                       "used_car_pub": "used_car_pub_coll",  # 二手车发布
+                       "dealer": "dealer_coll",  # 经销商数据
+                       "complain": "complain_coll",  # 投诉
+                       "opinions": "opinions_coll",  # 口碑
+                       "naked_price": "naked_price_coll",  # 裸车价/车主价格
+                       "dealer_price": "dealer_price_coll"  # 经销商报价
+                       }
 
 # mongodb 数据库
 mongoDBNameDic = {
