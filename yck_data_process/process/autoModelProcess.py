@@ -139,7 +139,7 @@ class ModelDischargeProcess():
             "filed": None
         }
         try:
-            pattern = re.compile(r'国1|国2|国3|国4|国5|国6|京3|京5|欧1|欧2|欧3|欧4|欧5|欧6|-')
+            pattern = re.compile(r'国1|国2|国3|国4|国5|国6|京3|京5|欧1|欧2|欧3|欧4|欧5|欧6|新能源|-')
             ret = pattern.search(filed)
             if ret:
                 statusDic["filed"] = ret.group()
