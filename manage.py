@@ -11,6 +11,28 @@ from functools import wraps
 from yck_data_process.logingDriver import Logger
 from yck_data_process.settingsManage import SettingsManage, MODEL
 from datetime import datetime
+
+
+def fn_timer(function):
+    @wraps(function)
+    def function_timer(*args, **kwargs):
+        t0 = time.time()
+        sm = SettingsManage(model=MODEL)
+        log_dir_manage = sm.get_log_setting_instance()
+        log_driver = Logger("{}\manage.log".format(log_dir_manage.get_logDirFullPath()), level='info')
+        try:
+            log_driver.logger.info("start")
+            result = function(*args, **kwargs)
+            return result
+        except Exception as e:
+            log_driver.logger.error(str(e))
+        finally:
+            t1 = time.time()
+            log_driver.logger.info("end spend %s seconds" % str(t1 - t0))
+
+    return function_timer
+
+
 class Manage(object):
 
     @staticmethod
@@ -18,6 +40,7 @@ class Manage(object):
         return Queue()
 
     @staticmethod
+    @fn_timer
     def run_from_muiltiprocess():
         '''
         创建生产和消费队列
@@ -25,47 +48,33 @@ class Manage(object):
         开启处理进程和存储进程
         :return:
         '''
-        inputQueue = Manage.create_query()
-        outputQueue = Manage.create_query()
-        InputDataMange.input_data(inputQueue)
-        p1 = Process(target=ProcessManage.process_data, args=(inputQueue, outputQueue))
-        r1 = Process(target=OutPutDataManage.dataOutput, args=(outputQueue,))
-        p1.start()
-        r1.start()
-        p1.join()
-        r1.join()
+        input_queue = Manage.create_query()
+        output_queue = Manage.create_query()
+        InputDataMange.input_data(input_queue)
+        process_data_job = Process(target=ProcessManage.process_data, args=(input_queue, output_queue))
+        out_put_data_job = Process(target=OutPutDataManage.out_put_data, args=(output_queue,))
+        process_data_job.start()
+        out_put_data_job.start()
+        process_data_job.join()
+        out_put_data_job.join()
 
 
-def fn_timer(function):
-    @wraps(function)
-    def function_timer(*args, **kwargs):
-        t0 = time.time()
-        result = function(*args, **kwargs)
-        t1 = time.time()
-        print("Total time running %s: %s seconds" %
-              ("text_foo", str(t1 - t0))
-              )
-        return result
-
-    return function_timer
-
-
-@fn_timer
-def run_from_muiltiprocess():
-    sm = SettingsManage(model=MODEL)
-    logDirManage = sm.get_logSettingsInstance()
-    logDriver = Logger("{}\manage.log".format(logDirManage.get_logDirFullPath()), level='info')
-    try:
-        logDriver.logger.info("start")
-        Manage.run_from_muiltiprocess()
-    except Exception as e:
-        logDriver.logger.error(str(e))
-    finally:
-        logDriver.logger.info("end")
+# @fn_timer
+# def run_from_muiltiprocess():
+#     sm = SettingsManage(model=MODEL)
+#     log_dir_manage = sm.get_log_setting_instance()
+#     log_driver = Logger("{}\manage.log".format(log_dir_manage.get_logDirFullPath()), level='info')
+#     try:
+#         log_driver.logger.info("start")
+#         Manage.run_from_muiltiprocess()
+#     except Exception as e:
+#         log_driver.logger.error(str(e))
+#     finally:
+#         log_driver.logger.info("end")
 
 
 if __name__ == '__main__':
-    run_from_muiltiprocess()
+    Manage.run_from_muiltiprocess()
 
 
 
