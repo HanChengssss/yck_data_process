@@ -19,7 +19,7 @@ def fn_timer(function):
         t0 = time.time()
         sm = SettingsManage(model=MODEL)
         log_dir_manage = sm.get_log_setting_instance()
-        log_driver = Logger("{}\manage.log".format(log_dir_manage.get_logDirFullPath()), level='info')
+        log_driver = Logger("{}\manage.log".format(log_dir_manage.get_log_dir_full_path()), level='info')
         try:
             log_driver.logger.info("start")
             result = function(*args, **kwargs)
@@ -28,7 +28,7 @@ def fn_timer(function):
             log_driver.logger.error(str(e))
         finally:
             t1 = time.time()
-            log_driver.logger.info("end spend %s seconds" % str(t1 - t0))
+            log_driver.logger.info("end spend %s seconds" % str(round((t1-t0), 0)))
 
     return function_timer
 

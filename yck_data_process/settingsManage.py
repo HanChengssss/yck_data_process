@@ -51,6 +51,9 @@ class DBSetting():
             raise Exception("{} model in MONGODB_COLL_NAME_DICT not exist!".format(data_type))
         return MONGODB_COLL_NAME_DICT.get(data_type)
 
+    def get_coll_name_list(self):
+        return list(MONGODB_COLL_NAME_DICT.values())
+
     def get_mongodb(self):
         if self.model not in MONGODB_NAME_DIC:
             raise Exception("{} model in MONGODB_NAME_DIC not exist!".format(self.model))

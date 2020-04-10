@@ -24,16 +24,16 @@ class ProcessManage():
         sm = SettingsManage(model=MODEL)
         log_dir_mange = sm.get_log_setting_instance()
         # 加载日志记录模块，记录处理过程中出现的异常
-        log_driver = Logger("{}\modelProcess.log".format(log_dir_mange.get_logDirFullPath()), level='warning')
+        log_driver = Logger("{}\modelProcess.log".format(log_dir_mange.get_log_dir_full_path()), level='warning')
         while True:
             # print("process_Manage %s get_data" % (os.getpid()))
             data_dic = input_queue.get()
-            data_type = data_dic.get("type")
             if data_dic == "end":
                 # print("process_Manage is end")
                 log_driver.logger.info("process_Manage is end")
                 output_queue.put("end")
                 break
+            data_type = data_dic.get("type")
             data_type_process_manage = ProcessManage.data_dic_process_dic.get(data_type).get("func")
             data_type_process_manage.process_data_dic(data_dic, log_driver)
             output_queue.put(data_dic)

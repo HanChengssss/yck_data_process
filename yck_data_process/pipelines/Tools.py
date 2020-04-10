@@ -24,6 +24,7 @@ class ToolSave():
 
         mysql_cursor = mysql_conn.cursor()
         sql = "SELECT {id_field} FROM {table}".format(id_field=id_field, table=table)
+        print(sql)
         # sql = "SELECT %s FROM {table}".format(table)
         mysql_cursor.execute(sql)
         model_id_list = mysql_cursor.fetchall()
@@ -274,12 +275,12 @@ class ToolSave():
         sm = SettingsManage(model=MODEL)
         db_manage = sm.get_db_setting_instance()
         log_path_manage = sm.get_log_setting_instance()
-        logDirFullPath = log_path_manage.get_logDirFullPath()
+        log_dir_full_Path = log_path_manage.get_log_dir_full_path()
 
-        log = logingDriver.Logger(filename="{}\dataError.log".format(logDirFullPath), level='error')
+        log = logingDriver.Logger(filename="{}\dataError.log".format(log_dir_full_Path), level='error')
         log.logger.error("{} 的数据存储失败，错误信息{}".format(table, error_msg))
 
-        db_manage = pymongo.MongoClient(**db_manage.get_mongoClientParams())
+        db_manage = pymongo.MongoClient(**db_manage.get_mongo_client_params())
         db = db_manage.get_database(db_manage.get_mongodb())
         ToolSave.insert_mongo_one(db, "error", item, table, type="error")
         c = db.get_collection()

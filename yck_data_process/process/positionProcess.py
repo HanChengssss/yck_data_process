@@ -60,7 +60,7 @@ class PositionFieldProcess():
             return
         # 字段处理规则
         status_dic = process_fun(filed)
-        print(status_dic)
+        # print(status_dic)
         if status_dic.get("isLog"):
             logDriver.logger.warning("{}-->{}, source_table-->{}".format(filed_name, data.get(filed_name), table))
         elif status_dic.get("filed"):
