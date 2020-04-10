@@ -19,7 +19,7 @@ class InputDataMange():
         '''
         # 创建集合的配置
         sm = SettingsManage(model=MODEL)
-        db_manage = sm.get_dbSettingInstance()
+        db_manage = sm.get_db_setting_instance()
         client = MongoClient(**db_manage.get_mongoClientParams())
         try:
             db = client.get_database(db_manage.get_mongodb())

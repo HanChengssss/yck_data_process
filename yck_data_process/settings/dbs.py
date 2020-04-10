@@ -1,4 +1,5 @@
-schemaMysql = {
+# scheam库连接参数
+SCHEAM_MySQL = {
     "test": dict(
     host="192.168.0.10",
     port=3306,
@@ -17,7 +18,8 @@ schemaMysql = {
     )
 }
 
-dataSaveMysql = {
+# 存储库连接参数
+DATA_SAVE_MySQL = {
     "normal": dict(
     host="192.168.0.10",
     port=3306,
@@ -37,7 +39,7 @@ dataSaveMysql = {
 }
 
 # mongodb 类型:集合
-mongodbCollNameDict = {"model": "model_coll",  # 车型库
+MONGODB_COLL_NAME_DICT = {"model": "model_coll",  # 车型库
                        "sale": "sale_coll",  # 销量
                        "setting": "setting_coll",  # 配置信息
                        "used_car_pub": "used_car_pub_coll",  # 二手车发布
@@ -49,25 +51,21 @@ mongodbCollNameDict = {"model": "model_coll",  # 车型库
                        }
 
 # mongodb 数据库
-mongoDBNameDic = {
+MONGODB_NAME_DIC = {
     "normal": "normal",
     "test": "test"
 }
 
-mysqlDBNameDic = {
+MYSQLDB_NAME_DIC = {
     "normal": "yck-data-center",
     "test": "test2"
 }
 
 # 创建集合的设置
-createMongodbCollParm = dict(
-    capped=True,
-    size=1024 * 1024 * 500,
-    max=1000000
-)
+CREATE_MONGODB_COLL_PARM = {"capped": True, "max": 1000000}
 
 # mongodb 连接信息
-mongoClientParams = {
+MONGO_CLIENT_PARAMS = {
     "test": dict(
             host="localhost",
             port=27017
@@ -78,38 +76,24 @@ mongoClientParams = {
         ),
 }
 
+# 车型库表名
+AUTO_MODEL_TABLES = [
+    "config_autohome_major_info_tmp",
+    "config_che300_major_info",
+    "config_chezhibao_major_info",
+    "config_autoowner_major_info_tmp",
+    "config_souhu_major_info",
+    "config_yiche_major_info",
+    "config_youxin_major_info_tmp",
+    "config_firstauto_major_info",
+    "config_xcar_major_info",
+    "config_tc5u_major_info",
+    "config_auto12365_major_info_tmp",
+    "config_wyauto_major_info"
+]
 
-class DbsManage():
-    def __init__(self, model):
-        self.model = model
+# 数据类型：表名字典
+MYSQL_TABLES_DIC = {
+    "model": AUTO_MODEL_TABLES
+}
 
-    def get_schemaMysqlParams(self):
-        if self.model not in schemaMysql:
-            raise Exception("{} model in schemaMysql not exist!".format(self.model))
-        return schemaMysql.get(self.model)
-
-    def get_saveMysqlNormalParams(self):
-        if self.model not in dataSaveMysql:
-            raise Exception("{} model in get_saveMysqlNormalParams not exist!".format(self.model))
-        return dataSaveMysql.get(self.model)
-
-    def get_mongodbCollNameDict(self):
-        return mongodbCollNameDict
-
-    def get_mongodb(self):
-        if self.model not in mongoDBNameDic:
-            raise Exception("{} model in mongoDBNameDic not exist!".format(self.model))
-        return mongoDBNameDic.get(self.model)
-
-    def get_mysqlDBName(self):
-        if self.model not in mysqlDBNameDic:
-            raise Exception("{} model in mysqlDBNameDic not exist!".format(self.model))
-        return mysqlDBNameDic.get(self.model)
-
-    def get_creatMongodbCollParm(self):
-        return createMongodbCollParm
-
-    def get_mongoClientParams(self):
-        if self.model not in mongoClientParams:
-            raise Exception("{} model in mongoClientParams not exist!".format(self.model))
-        return mongoClientParams.get(self.model)

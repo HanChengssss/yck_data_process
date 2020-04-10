@@ -15,8 +15,8 @@ class ProcessTestDriver():
     @staticmethod
     def test_driver():
         sm = SettingsManage(model=MODEL)
-        dbManage = sm.get_dbSettingInstance()
-        logPathMange = sm.get_logSettingsInstance()
+        dbManage = sm.get_db_setting_instance()
+        logPathMange = sm.get_log_setting_instance()
 
         mongoClientParams = dbManage.get_mongoClientParams()
         mongoConn = pymongo.MongoClient(**mongoClientParams)
@@ -28,7 +28,7 @@ class ProcessTestDriver():
         logDriver = Logger("{}\modelProcess.log".format(logPathMange.get_logDirFullPath()), level='warning')
         for dataDic in cursor:
             print(dataDic)
-            ModelProcessManage.process_AutoModel_datas(dataDic, logDriver)
+            ModelProcessManage.process_data_dic(dataDic, logDriver)
             print(dataDic)
 
 

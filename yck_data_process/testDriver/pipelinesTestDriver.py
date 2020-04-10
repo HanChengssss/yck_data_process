@@ -78,7 +78,7 @@ class AutoModelTestDriver():
         :return:
         '''
         sm = SettingsManage(model=MODEL)
-        dbManage = sm.get_dbSettingInstance()
+        dbManage = sm.get_db_setting_instance()
 
         mongoClientParams = dbManage.get_mongoClientParams()
         mongoConn = MongoClient(**mongoClientParams)
@@ -86,7 +86,7 @@ class AutoModelTestDriver():
         db = mongoConn.get_database(dbName)
         collNameDic = dbManage.get_mongodbCollNameDict()
         q = AutoModelTestDriver.put_data_queue(db, collNameDic.get("auto_model"))
-        OutPutDataManage.dataOutput(q)
+        OutPutDataManage.out_put_data(q)
         mongoConn.close()
 
 

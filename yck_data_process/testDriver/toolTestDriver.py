@@ -119,7 +119,7 @@ class ToolTestDriver():
         '''
         collList = db.collection_names()
         sm = SettingsManage(model=MODEL)
-        dbManage = sm.get_dbSettingInstance()
+        dbManage = sm.get_db_setting_instance()
         if coll_name not in collList:
             collection = db.create_collection(name=coll_name, **dbManage.get_creatMongodbCollParm())  # 创建一个集合
         else:
@@ -144,7 +144,7 @@ class RandomProdictData():
         :param coll_name:
         '''
         sm = SettingsManage(model=MODEL)
-        dbManage = sm.get_dbSettingInstance()
+        dbManage = sm.get_db_setting_instance()
         self.client = MongoClient(**dbManage.get_mongoClientParams())
         self.db = self.client.get_database(dbManage.get_mongodb())
         collList = self.db.collection_names()

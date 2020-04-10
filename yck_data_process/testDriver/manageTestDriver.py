@@ -56,13 +56,13 @@ position_datas = ToolTestDriver.get_mysql_data(mysql_conn, query_position_data)
 
 data_dic_list = ToolTestDriver.package_data_list(all_records=position_datas, table="yck_zhaopin", type="position_info")
 sm = SettingsManage(model="test")
-logDirManage = sm.get_logSettingsInstance()
+logDirManage = sm.get_log_setting_instance()
 # 加载日志记录模块，记录处理过程中出现的异常
 logDriver = Logger("{}\modelProcess.log".format(logDirManage.get_logDirFullPath()), level='warning')
 table = "yck_zhaopin"
 try:
     for data_dic in data_dic_list:
-        PositionProcessManage.process_position_datas(dataDict=data_dic, logDriver=logDriver)
+        PositionProcessManage.process_position_datas(data_dic, logDriver)
         print(data_dic)
         data_list = data_dic.get('dataList')
         for item in data_list:

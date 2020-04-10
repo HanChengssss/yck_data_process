@@ -24,8 +24,8 @@ class OutPutDataManage():
         :return:
         '''
         sm = SettingsManage(model=MODEL)
-        db_mange = sm.get_dbSettingInstance()
-        log_path_mange = sm.get_logSettingsInstance()
+        db_mange = sm.get_db_setting_instance()
+        log_path_mange = sm.get_log_setting_instance()
         mysql_conn = pymysql.connect(**db_mange.get_saveMysqlNormalParams())
         log_dir_full_path = log_path_mange.get_log_dir_full_path()
         log = Logger(filename="{}\outoutData.log".format(log_dir_full_path), level='error')

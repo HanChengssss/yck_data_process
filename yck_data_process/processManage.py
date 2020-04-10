@@ -22,7 +22,7 @@ class ProcessManage():
         '''
 
         sm = SettingsManage(model=MODEL)
-        log_dir_mange = sm.get_logSettingsInstance()
+        log_dir_mange = sm.get_log_setting_instance()
         # 加载日志记录模块，记录处理过程中出现的异常
         log_driver = Logger("{}\modelProcess.log".format(log_dir_mange.get_logDirFullPath()), level='warning')
         while True:

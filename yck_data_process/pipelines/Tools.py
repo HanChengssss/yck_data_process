@@ -272,8 +272,8 @@ class ToolSave():
         :return:
         '''
         sm = SettingsManage(model=MODEL)
-        db_manage = sm.get_dbSettingInstance()
-        log_path_manage = sm.get_logSettingsInstance()
+        db_manage = sm.get_db_setting_instance()
+        log_path_manage = sm.get_log_setting_instance()
         logDirFullPath = log_path_manage.get_logDirFullPath()
 
         log = logingDriver.Logger(filename="{}\dataError.log".format(logDirFullPath), level='error')
@@ -313,7 +313,7 @@ class ToolSave():
         :return: 返回collection对象
         '''
         sm = SettingsManage(model=MODEL)
-        db_manage = sm.get_dbSettingInstance()
+        db_manage = sm.get_db_setting_instance()
 
         coll_list = db.collection_names()
 
