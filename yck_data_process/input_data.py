@@ -6,11 +6,10 @@ from multiprocessing import Queue
 from yck_data_process.settingsManage import SettingsManage, MODEL
 
 
-
 class InputDataMange():
 
     @staticmethod
-    def input_data(inputQueue):
+    def input_data(input_queue):
         '''
         初始化mongodb连接
         加载待查询的collection
@@ -20,32 +19,32 @@ class InputDataMange():
         '''
         # 创建集合的配置
         sm = SettingsManage(model=MODEL)
-        dbManage = sm.get_dbSettingInstance()
-        client = MongoClient(**dbManage.get_mongoClientParams())
+        db_manage = sm.get_dbSettingInstance()
+        client = MongoClient(**db_manage.get_mongoClientParams())
         try:
-            db = client.get_database(dbManage.get_mongodb())
-            collList = db.collection_names()
+            db = client.get_database(db_manage.get_mongodb())
+            coll_list = db.collection_names()
             # 如果现有集合中没有，新建一个集合
-            for coll in dbManage.get_mongodbCollNameDict().values():
-                if coll not in collList:
-                    collection = db.create_collection(name=coll, **dbManage.get_creatMongodbCollParm())  # 创建一个集合
+            for coll in db_manage.get_mongodbCollNameDict().values():
+                if coll not in coll_list:
+                    collection = db.create_collection(name=coll, **db_manage.get_creatMongodbCollParm())  # 创建一个集合
                 else:
                     collection = db.get_collection(name=coll)  # 获取一个集合对象
-                InputDataMange.find_data(collection, inputQueue)  # 将数据装载到队列中
-            inputQueue.put("end")
-            print("inputQueue have been finished !")
+                InputDataMange.find_data(collection, input_queue)  # 将数据装载到队列中
+            input_queue.put("end")
+            print("input_queue have been finished !")
         finally:
             client.close()
 
     @staticmethod
-    def find_data(collection, inputQueue):
+    def find_data(collection, input_queue):
         '''
         查询mongodb中所有isProcess为FALSE的数据
         将数据装入队列中
         '''
         cursor = collection.find({"isProcess": False})
         for data in cursor:
-            inputQueue.put(data)
+            input_queue.put(data)
 
 
 if __name__ == '__main__':
