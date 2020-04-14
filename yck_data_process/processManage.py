@@ -2,7 +2,7 @@ from yck_data_process.logingDriver import Logger
 from yck_data_process.process.autoModelProcess import ModelProcessManage
 from yck_data_process.process.positionProcess import PositionProcessManage
 from yck_data_process.settingsManage import SettingsManage, MODEL
-
+from yck_data_process.process.autoSettingProcess import SettingProcessManage
 
 class ProcessManage():
     '''
@@ -11,6 +11,7 @@ class ProcessManage():
     data_dic_process_dic = {
         "model": {"func": ModelProcessManage},
         "position": {"func": PositionProcessManage},
+        "setting": {"func": SettingProcessManage}
     }
     
     @staticmethod
@@ -26,7 +27,6 @@ class ProcessManage():
         # 加载日志记录模块，记录处理过程中出现的异常
         log_driver = Logger("{}\modelProcess.log".format(log_dir_mange.get_log_dir_full_path()), level='warning')
         while True:
-            # print("process_Manage %s get_data" % (os.getpid()))
             data_dic = input_queue.get()
             if data_dic == "end":
                 # print("process_Manage is end")
