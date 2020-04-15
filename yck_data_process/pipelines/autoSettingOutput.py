@@ -6,7 +6,7 @@ from tqdm import tqdm
 class AutoSettingPipeline(object):
     id_set_dic = {}  # 去重集合
     @staticmethod
-    def process_item(item, update_list, insert_list, id_field_set, mysql_conn, table):
+    def process_item(item, update_list, insert_list, id_field_set, mysql_conn, table, id_field_name):
         '''
         车型库更新逻辑
         只负责把不同存储逻辑的数据进行
@@ -30,8 +30,9 @@ class AutoSettingPipeline(object):
             data = item["data"]
         else:
             data = item
-        autohome_id = data.get("autohome_id")
-        ret = ToolSave.test_exist(id_field=autohome_id, id_field_set=id_field_set)
+        # autohome_id = data.get("autohome_id")
+        id_filed = data.get(id_field_name)
+        ret = ToolSave.test_exist(id_field=id_filed, id_field_set=id_field_set)
         if ret:
             update_time = None
             if "add_time" in data:
@@ -68,16 +69,16 @@ class AutoSettingPipeline(object):
         data_list = data_dic.get("dataList")
         update_list = []
         insert_list = []
-        id_field = "autohome_id"
-        id_field_set = ToolSave.get_filter_set(mysql_conn=mysql_conn, id_field=id_field, table=table)
+        id_field_name = "autohome_id"
+        id_field_set = ToolSave.get_filter_set(mysql_conn=mysql_conn, id_field_name=id_field_name, table=table)
         # 将数据进行分类
         print("==========", table)
         for item in data_list:
-            AutoSettingPipeline.process_item(item=item, update_list=update_list, insert_list=insert_list, id_field_set=id_field_set, mysql_conn=mysql_conn, table=table)
+            AutoSettingPipeline.process_item(item=item, update_list=update_list, insert_list=insert_list, id_field_set=id_field_set, mysql_conn=mysql_conn, table=table, id_field_name=id_field_name)
         # 将分类后的数据进行批存储操作
         # print(len(update_list))
         # print(len(insert_list))
-        ToolSave.update_mysql_many(mysql_conn=mysql_conn, data_list=update_list, table=table, id_field=id_field)
+        ToolSave.update_mysql_many(mysql_conn=mysql_conn, data_list=update_list, table=table, id_field_name=id_field_name)
         ToolSave.insert_mysql_many(mysql_conn=mysql_conn, data_list=insert_list, table=table, hp=False)
 
 

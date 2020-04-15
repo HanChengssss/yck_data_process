@@ -3,6 +3,7 @@ from yck_data_process.process.autoModelProcess import ModelProcessManage
 from yck_data_process.process.positionProcess import PositionProcessManage
 from yck_data_process.settingsManage import SettingsManage, MODEL
 from yck_data_process.process.autoSettingProcess import SettingProcessManage
+from yck_data_process.process.bankInfoProcess import BankInfoProcessManage
 
 class ProcessManage():
     '''
@@ -11,7 +12,8 @@ class ProcessManage():
     data_dic_process_dic = {
         "model": {"func": ModelProcessManage},
         "position": {"func": PositionProcessManage},
-        "setting": {"func": SettingProcessManage}
+        "setting": {"func": SettingProcessManage},
+        "bank": {"func": BankInfoProcessManage}
     }
     
     @staticmethod

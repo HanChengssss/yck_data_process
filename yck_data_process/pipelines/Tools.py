@@ -14,7 +14,7 @@ class ToolSave():
     # todo 需新增一个补齐缺失字段函数，防止在批量插入的过程中因为某条数据缺失某个字段而导致整体插入失败。
 
     @staticmethod
-    def get_filter_set(mysql_conn, table, id_field=None):
+    def get_filter_set(mysql_conn, table, id_field_name=None):
         '''
         :param mysql_conn: 连接
         :param id_field: 数据唯一标识字段，必须是能被转换成整形的字段
@@ -23,7 +23,7 @@ class ToolSave():
         '''
 
         mysql_cursor = mysql_conn.cursor()
-        sql = "SELECT {id_field} FROM {table}".format(id_field=id_field, table=table)
+        sql = "SELECT {id_field} FROM {table}".format(id_field=id_field_name, table=table)
         print(sql)
         # sql = "SELECT %s FROM {table}".format(table)
         mysql_cursor.execute(sql)
@@ -121,7 +121,7 @@ class ToolSave():
         print("pymongo 更新成功！")
 
     @staticmethod
-    def update_mysql_one(mysql_conn, item, table, id_field):
+    def update_mysql_one(mysql_conn, item, table, id_field_name):
         '''
         更新车型库中有变化的一条数据
         :param mysql_conn: MySQL 连接
@@ -137,7 +137,7 @@ class ToolSave():
         if "id" in data:
             data.pop("id")
         keys = "=%s,".join(data.keys()) + "=%s"
-        sql = 'UPDATE {table} SET {keys} WHERE {id_field} = "{filedId}"'.format(table=table, keys=keys, id_field=id_field, filedId=data[id_field])
+        sql = 'UPDATE {table} SET {keys} WHERE {id_field} = "{filedId}"'.format(table=table, keys=keys, id_field=id_field_name, filedId=data[id_field_name])
         cursor = mysql_conn.cursor()
         try:
             if cursor.execute(sql, tuple(data.values())):
@@ -150,7 +150,7 @@ class ToolSave():
             cursor.close()
 
     @staticmethod
-    def update_mysql_many(mysql_conn, data_list, table, id_field):
+    def update_mysql_many(mysql_conn, data_list, table, id_field_name):
         '''
         :param mysql_conn: MySQL 连接
         :param dataList: 包含多条数据的列表 [itemA, itemB, itemC ...]
@@ -161,7 +161,7 @@ class ToolSave():
         if not data_list:
             return
         for item in data_list:
-            ToolSave.update_mysql_one(mysql_conn, item, table, id_field)
+            ToolSave.update_mysql_one(mysql_conn, item, table, id_field_name)
         print("update_mysql finish!")
 
     @staticmethod
