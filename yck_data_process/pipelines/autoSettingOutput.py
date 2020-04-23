@@ -3,8 +3,8 @@ from tqdm import tqdm
 # config_autohome_major_info_tmp
 
 
-class AutoModelPipeline(object):
-    id_set_dic = {}  # 存放各个车型库的去重集合
+class AutoSettingPipeline(object):
+    id_set_dic = {}  # 去重集合
     @staticmethod
     def process_item(item, update_list, insert_list, id_field_set, mysql_conn, table, id_field_name):
         '''
@@ -30,8 +30,9 @@ class AutoModelPipeline(object):
             data = item["data"]
         else:
             data = item
-        id_field = data.get(id_field_name)
-        ret = ToolSave.test_exist(id_field=id_field, id_field_set=id_field_set)
+        # autohome_id = data.get("autohome_id")
+        id_filed = data.get(id_field_name)
+        ret = ToolSave.test_exist(id_field=id_filed, id_field_set=id_field_set)
         if ret:
             update_time = None
             if "add_time" in data:
@@ -39,13 +40,12 @@ class AutoModelPipeline(object):
             if "update_time" in data:
                 update_time = data.pop("update_time")
             new_data = ToolSave.sort_item(data)
-            old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysql_conn=mysql_conn, id_field="model_id")
+            old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysql_conn=mysql_conn, id_field=id_field_name)
             old_data = ToolSave.sort_item(old_data)
             compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
             if not compare_ret:
                 if update_time:
                     data["update_time"] = update_time
-                # item["id_field"] = "model_id"
                 update_list.append(item)
             else:
                 pass
@@ -55,7 +55,7 @@ class AutoModelPipeline(object):
 
     @staticmethod
     def process_data_dic(data_dic, mysql_conn):
-        '''
+        """
         将data_dic中数据进行分类
         不同存储逻辑的数据分别放到不同的列表中
         最后再统一处理，将存逻辑和数据存储操作分离
@@ -63,17 +63,17 @@ class AutoModelPipeline(object):
         :param data_dic:
         :param mysql_conn:
         :return:
-        '''
+        """
         table = data_dic.get("table")
         data_list = data_dic.get("dataList")
         update_list = []
         insert_list = []
-        id_field_name = "model_id"
+        id_field_name = data_dic["id_field_name"]
         id_field_set = ToolSave.get_filter_set(mysql_conn=mysql_conn, id_field_name=id_field_name, table=table)
         # 将数据进行分类
         print("==========", table)
         for item in data_list:
-            AutoModelPipeline.process_item(item=item, update_list=update_list, insert_list=insert_list, id_field_set=id_field_set, mysql_conn=mysql_conn, table=table, id_field_name=id_field_name)
+            AutoSettingPipeline.process_item(item=item, update_list=update_list, insert_list=insert_list, id_field_set=id_field_set, mysql_conn=mysql_conn, table=table, id_field_name=id_field_name)
         # 将分类后的数据进行批存储操作
         # print(len(update_list))
         # print(len(insert_list))

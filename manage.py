@@ -7,6 +7,7 @@ import time
 from yck_data_process.processManage import ProcessManage
 from yck_data_process.input_data import InputDataMange
 from yck_data_process.output_data import OutPutDataManage
+from yck_data_process.parseManage import ParseManage
 from functools import wraps
 from yck_data_process.logingDriver import Logger
 from yck_data_process.settingsManage import SettingsManage, MODEL
@@ -58,6 +59,33 @@ class Manage(object):
         process_data_job.join()
         out_put_data_job.join()
 
+class MangeTestDriver(object):
+
+    @staticmethod
+    def create_query():
+        return Queue()
+
+    @staticmethod
+    @fn_timer
+    def run_from_muiltiprocess():
+        '''
+        创建生产和消费队列
+        往队列中装入待处理的数据
+        开启处理进程和存储进程
+        :return:
+        '''
+        input_queue = Manage.create_query()
+        output_queue = Manage.create_query()
+        InputDataMange.input_data(input_queue)
+        parse_data_job = Process(target=ParseManage.process_data, args=(input_queue, output_queue))
+        # process_data_job = Process(target=ProcessManage.process_data, args=(input_queue, output_queue))
+        # out_put_data_job = Process(target=OutPutDataManage.out_put_data, args=(output_queue,))
+        parse_data_job.start()
+        parse_data_job.join()
+        # process_data_job.start()
+        # out_put_data_job.start()
+        # process_data_job.join()
+        # out_put_data_job.join()
 
 # @fn_timer
 # def run_from_muiltiprocess():

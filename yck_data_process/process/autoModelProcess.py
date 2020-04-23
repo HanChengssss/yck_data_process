@@ -206,7 +206,7 @@ def filter_table(func):
 
 
 # 车型库字段管理模块
-class ModelFieldProcess():
+class ModelFiledProcess():
 
     @staticmethod
     @filter_table
@@ -266,7 +266,7 @@ class ModelProcessManage():
             for process in ModelProcessManage.filed_process_dic.values():
                 name_list = process.get("name_list")
                 process_fun = process.get("func").process_filed
-                ModelFieldProcess.process_data(data=data, filed_name_list=name_list, log_driver=log_driver, table=table, process_fun=process_fun)
+                ModelFiledProcess.process_data(data=data, filed_name_list=name_list, log_driver=log_driver, table=table, process_fun=process_fun)
 
 
 if __name__ == '__main__':
