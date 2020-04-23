@@ -31,6 +31,7 @@ class BankInfoOutput(object):
             data = item
         id_filed = data.get(id_field_name)
         ret = ToolSave.test_exist(id_field=id_filed, id_field_set=id_field_set)
+        data["isSync"] = "false"
         if ret:
             update_time = None
             if "add_time" in data:

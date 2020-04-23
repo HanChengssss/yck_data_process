@@ -24,7 +24,7 @@ class ToolSave():
 
         mysql_cursor = mysql_conn.cursor()
         sql = "SELECT {id_field} FROM {table}".format(id_field=id_field_name, table=table)
-        print(sql)
+        # print(sql)
         # sql = "SELECT %s FROM {table}".format(table)
         mysql_cursor.execute(sql)
         model_id_list = mysql_cursor.fetchall()
