@@ -72,24 +72,25 @@ class PositionProcessManage():
     职位信息处理模块
     加载和管理车型库各个字段处理模块
     '''
-    filed_process_dic = {
-       "职位": {"func": PositionProcess, "name_list": ["position"]}
-    }
+    # filed_process_dic = {
+    #    "职位": {"func": PositionProcess, "name_list": ["position"]}
+    # }
 
     @staticmethod
-    def process_position_datas(data_dict, logDriver):
-        data_list = data_dict.get("dataList")
-        table = data_dict.get("table")
-        for d in data_list:
-            if "data" in d:
-                data = d["data"]
-            else:
-                data = d
-            for process in PositionProcessManage.filed_process_dic.values():
-                name_list = process.get("name_list")
-                process_fun = process.get("func").process_filed
-                PositionFieldProcess.process_data(data=data, filed_name_list=name_list, logDriver=logDriver, table=table, process_fun=process_fun)
-
+    def process_data_dic(data_dict, log_driver):
+        pass
+        # data_list = data_dict.get("dataList")
+        # table = data_dict.get("table")
+        # for d in data_list:
+        #     if "data" in d:
+        #         data = d["data"]
+        #     else:
+        #         data = d
+        #     for process in PositionProcessManage.filed_process_dic.values():
+        #         name_list = process.get("name_list")
+        #         process_fun = process.get("func").process_filed
+        #         PositionFieldProcess.process_data(data=data, filed_name_list=name_list, logDriver=logDriver, table=table, process_fun=process_fun)
+        #
 
 if __name__ == '__main__':
     ret = PositionProcess.process_filed("**区域管理部总监xxxx")
