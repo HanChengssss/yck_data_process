@@ -1,6 +1,6 @@
 # scheam库连接参数
 SCHEAM_MySQL = {
-    "test": dict(
+    "normal": dict(
     host="192.168.0.10",
     port=3306,
     user="root",
@@ -8,7 +8,7 @@ SCHEAM_MySQL = {
     db="information_schema",
     charset="utf8",
     ),
-    "normal": dict(
+    "test": dict(
     host="localhost",
     port=3306,
     user="root",

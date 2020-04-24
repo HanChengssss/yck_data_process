@@ -336,3 +336,28 @@ class ToolSave():
         data_list.append(item)
         print("package_data finish!")
         return data_dic
+
+
+class StandardDataStructure():
+    def __init__(self):
+        self.__data_dic = {
+            # "isProcess": False,
+            # "table": "",
+            # "type": "",
+            # "dataList": []
+        }
+
+    def set_value(self, key, value):
+        self.__data_dic[key] = value
+
+    def test(self, data_dic):
+        standard_type = {"isProcess": bool, "table": str, "dataList": list, "type": str}
+        for filed in standard_type:
+            if filed not in data_dic:
+                raise Exception(f"data_dict is not standard, {filed} no exist!")
+            if not isinstance(self.__data_dic.get(filed), standard_type.get(filed)):
+                raise Exception(f"{filed} type no standard! it should be {standard_type.get(filed)}")
+
+    def get_data(self):
+        self.test(self.__data_dic)
+        return self.__data_dic
