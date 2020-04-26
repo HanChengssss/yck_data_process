@@ -48,7 +48,8 @@ MONGODB_COLL_NAME_DICT = {"model": "model_coll",  # 车型库
                        "complain": "complain_coll",  # 投诉
                        "opinions": "opinions_coll",  # 口碑
                        "naked_price": "naked_price_coll",  # 裸车价/车主价格
-                       "dealer_price": "dealer_price_coll"  # 经销商报价
+                       "dealer_price": "dealer_price_coll",  # 经销商报价
+                        "bank": "bank_coll"  # 银行数据
                        }
 
 # mongodb 数据库

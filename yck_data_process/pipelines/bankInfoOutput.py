@@ -32,6 +32,7 @@ class BankInfoOutput(object):
         id_filed = data.get(id_field_name)
         ret = ToolSave.test_exist(id_field=id_filed, id_field_set=id_field_set)
         data["isSync"] = "false"
+        data["isManual"] = "false"
         if ret:
             update_time = None
             if "add_time" in data:
@@ -68,7 +69,7 @@ class BankInfoOutput(object):
         data_list = data_dic.get("dataList")
         update_list = []
         insert_list = []
-        id_field_name = "bank_code"
+        id_field_name = data_dic["id_field_name"]
         id_field_set = ToolSave.get_filter_set(mysql_conn=mysql_conn, id_field_name=id_field_name, table=table)
         # 将数据进行分类
         print("==========", table)

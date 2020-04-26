@@ -8,6 +8,7 @@ from yck_data_process.logingDriver import Logger
 import pymongo
 from yck_data_process.pipelines.autoModelOutput import AutoModelPipeline
 from yck_data_process.pipelines.autoSettingOutput import AutoSettingPipeline
+from yck_data_process.pipelines.bankInfoOutput import BankInfoOutput
 from yck_data_process.pipelines.Tools import ToolSave
 from tqdm import tqdm
 import traceback
@@ -16,6 +17,7 @@ class OutPutDataManage():
     data_dic_pipeline_dic = {
         "model": {"func": AutoModelPipeline},
         "setting": {"func": AutoSettingPipeline},
+        "bank": {"func": BankInfoOutput},
     }
     @staticmethod
     def out_put_data(out_put_queue):

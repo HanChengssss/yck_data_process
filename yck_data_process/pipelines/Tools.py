@@ -101,6 +101,7 @@ class ToolSave():
         '''
 
         if str(id_field) not in id_field_set:
+            id_field_set.add(id_field)
             return False
         else:
             return True
