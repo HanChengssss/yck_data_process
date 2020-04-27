@@ -41,16 +41,20 @@ class BankInfoOutput(object):
                 update_time = data.pop("update_time")
             new_data = ToolSave.sort_item(data)
             old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysql_conn=mysql_conn, id_field=id_field_name)
-            old_data = ToolSave.sort_item(old_data)
-            compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
-            if not compare_ret:
-                if update_time:
-                    data["update_time"] = update_time
-                # item["id_field"] = "autohome_id"
-                update_list.append(item)
-            else:
+            if not old_data:
+                """爬下来的数据有重复，所以可能出现新数据没入库，但是id已经在set中"""
                 pass
-                # print("数据无变化！")
+            else:
+                old_data = ToolSave.sort_item(old_data)
+                compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
+                if not compare_ret:
+                    if update_time:
+                        data["update_time"] = update_time
+                    # item["id_field"] = "autohome_id"
+                    update_list.append(item)
+                else:
+                    pass
+                    # print("数据无变化！")
         else:
             insert_list.append(item)
 
