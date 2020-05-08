@@ -40,14 +40,14 @@ DATA_SAVE_MySQL = {
 
 # mongodb 类型:集合
 MONGODB_COLL_NAME_DICT = {"model": "model_coll",  # 车型库
-                       "sale": "sale_coll",  # 销量
+                       # "sale": "sale_coll",  # 销量
                        "setting": "setting_coll",  # 配置信息
                        # "used_car_pub": "used_car_pub_coll",  # 二手车发布
-                       "dealer": "dealer_coll",  # 经销商数据
-                       "complain": "complain_coll",  # 投诉
-                       "opinions": "opinions_coll",  # 口碑
-                       "naked_price": "naked_price_coll",  # 裸车价/车主价格
-                       "dealer_price": "dealer_price_coll",  # 经销商报价
+                       # "dealer": "dealer_coll",  # 经销商数据
+                       # "complain": "complain_coll",  # 投诉
+                       # "opinions": "opinions_coll",  # 口碑
+                       # "naked_price": "naked_price_coll",  # 裸车价/车主价格
+                       # "dealer_price": "dealer_price_coll",  # 经销商报价
                         "bank": "bank_coll"  # 银行数据
                        }
 
