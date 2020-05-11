@@ -4,6 +4,7 @@ from yck_data_process.process.positionProcess import PositionProcessManage
 from yck_data_process.settingsManage import SettingsManage, MODEL
 from yck_data_process.process.autoSettingProcess import SettingProcessManage
 from yck_data_process.process.bankInfoProcess import BankInfoProcessManage
+from yck_data_process.process.rankZhiyunProcess import RankProcessManage
 
 class ProcessManage():
     '''
@@ -13,7 +14,8 @@ class ProcessManage():
         "model": {"func": ModelProcessManage},
         "position": {"func": PositionProcessManage},
         "setting": {"func": SettingProcessManage},
-        "bank": {"func": BankInfoProcessManage}
+        "bank": {"func": BankInfoProcessManage},
+        "rank_zhiyun": {"func": RankProcessManage},
     }
     
     @staticmethod
@@ -36,7 +38,8 @@ class ProcessManage():
                 output_queue.put("end")
                 break
             data_type = data_dic.get("type")
-            data_type_process_manage = ProcessManage.data_dic_process_dic.get(data_type).get("func")
-            data_type_process_manage.process_data_dic(data_dic, log_driver)
+            if data_type in ProcessManage.data_dic_process_dic:
+                data_type_process_manage = ProcessManage.data_dic_process_dic.get(data_type).get("func")
+                data_type_process_manage.process_data_dic(data_dic, log_driver)
             output_queue.put(data_dic)
 
