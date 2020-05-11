@@ -92,6 +92,7 @@ class PositionProcessManage():
         #         PositionFieldProcess.process_data(data=data, filed_name_list=name_list, logDriver=logDriver, table=table, process_fun=process_fun)
         #
 
+
 if __name__ == '__main__':
     ret = PositionProcess.process_filed("**区域管理部总监xxxx")
     print(ret)

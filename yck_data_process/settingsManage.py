@@ -6,7 +6,7 @@
 import os
 from yck_data_process.settings.dbs import *
 from yck_data_process.settings.logPaths import *
-
+from yck_data_process.settings.pipelines import *
 # 全局模式
 MODEL = "normal"
 
@@ -118,7 +118,14 @@ class LogPathSetting():
         return log_dir_full_path
 
 
+class PipelinesTypeMap():
+    def __init__(self, data_type):
+        self.data_type = data_type
 
+    def get_pipeline_type(self):
+        if self.data_type not in DATA_TYPE_PIPELINE_MAP:
+            raise Exception("pipeline_type not exist !")
+        return DATA_TYPE_PIPELINE_MAP.get(self.data_type)
 
 
 

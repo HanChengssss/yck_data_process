@@ -2,22 +2,20 @@
 # -*-encoding: utf-8-*-
 # author:Hancheng
 # version:0.1
-from yck_data_process.settingsManage import SettingsManage, MODEL
+from yck_data_process.settingsManage import SettingsManage, MODEL, PipelinesTypeMap
 import pymysql
 from yck_data_process.logingDriver import Logger
 import pymongo
-from yck_data_process.pipelines.autoModelOutput import AutoModelPipeline
-from yck_data_process.pipelines.autoSettingOutput import AutoSettingPipeline
-from yck_data_process.pipelines.bankInfoOutput import BankInfoOutput
+from yck_data_process.pipelines.increment import IncrementPipeline
+from yck_data_process.pipelines.incrementStock import IncrementStock
 from yck_data_process.pipelines.Tools import ToolSave
 from tqdm import tqdm
 import traceback
 
 class OutPutDataManage():
     data_dic_pipeline_dic = {
-        "model": {"func": AutoModelPipeline},
-        "setting": {"func": AutoSettingPipeline},
-        "bank": {"func": BankInfoOutput},
+        "increment": IncrementPipeline,
+        "incrementStock": IncrementStock
     }
     @staticmethod
     def out_put_data(out_put_queue):
@@ -46,8 +44,9 @@ class OutPutDataManage():
                     break
                 try:
                     data_type = data_dic.get("type")
+                    pip_type = PipelinesTypeMap(data_type).get_pipeline_type()
                     coll_name = db_mange.get_mongodb_coll_name(data_type)
-                    data_pipeline = OutPutDataManage.data_dic_pipeline_dic.get(data_type).get("func")
+                    data_pipeline = OutPutDataManage.data_dic_pipeline_dic.get(pip_type)
                     data_pipeline.process_data_dic(data_dic, mysql_conn)
                     ToolSave.update_is_process_status(mongodb, data_dic["_id"], coll_name)
                 except Exception as e:

@@ -56,7 +56,7 @@ class ToolSave():
         return new_data_md5 == old_data_md5
 
     @staticmethod
-    def get_old_data(new_data, table_name, mysql_conn, id_field):
+    def get_old_data(new_data, table_name, mysql_conn, id_field_name):
         '''
         返回与新抓下的数据相对应的旧数据
         :param new_data:新数据字典 {name:value,...} 没有嵌套
@@ -67,9 +67,9 @@ class ToolSave():
         mysql_cursor = mysql_conn.cursor(pymysql.cursors.DictCursor)
         if "update_time" in new_data:
             new_data.pop("update_time")
-        field_id = new_data[id_field]
+        field_id = new_data[id_field_name]
         keys = ','.join(new_data.keys())
-        query_sql = """select {keys} from {table_name} WHERE {id_field}='{field_id}'""".format(keys=keys, table_name=table_name, id_field=id_field, field_id=field_id)
+        query_sql = """select {keys} from {table_name} WHERE {id_field_name}='{field_id}'""".format(keys=keys, table_name=table_name, id_field_name=id_field_name, field_id=field_id)
         try:
             mysql_cursor.execute(query_sql)
             old_data = mysql_cursor.fetchone()
