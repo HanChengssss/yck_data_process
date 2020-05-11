@@ -180,9 +180,11 @@ class ToolSave():
         else:
             data = item
 
-        keys = ",".join(data.keys())
+        keys = '`' + "`,`".join(data.keys()) + '`'
         values = ",".join(["%s"] * len(data))
         sql = 'INSERT INTO {table} ({keys}) VALUES ({values})'.format(table=table, keys=keys, values=values)
+        # print(sql)
+        # print(values)
         try:
             # raise Exception
             if cursor.execute(sql, tuple(data.values())):

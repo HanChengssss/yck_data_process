@@ -5,6 +5,7 @@ from yck_data_process.settingsManage import SettingsManage, MODEL
 from yck_data_process.process.autoSettingProcess import SettingProcessManage
 from yck_data_process.process.bankInfoProcess import BankInfoProcessManage
 from yck_data_process.process.rankZhiyunProcess import RankProcessManage
+from yck_data_process.process.usedCarProcess import UsedCarProcessManage
 
 class ProcessManage():
     '''
@@ -16,6 +17,7 @@ class ProcessManage():
         "setting": {"func": SettingProcessManage},
         "bank": {"func": BankInfoProcessManage},
         "rank_zhiyun": {"func": RankProcessManage},
+        "used_car_pub": {"func": UsedCarProcessManage},
     }
     
     @staticmethod
