@@ -5,7 +5,7 @@ from yck_data_process.settingsManage import SettingsManage, MODEL
 import pymongo
 from yck_data_process.logingDriver import Logger
 from queue import Queue
-from yck_data_process.input_data import InputDataMange
+from yck_data_process.inputMange import InputDataMange
 from datetime import datetime
 '''
 测试流程

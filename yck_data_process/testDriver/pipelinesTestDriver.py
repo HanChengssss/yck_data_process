@@ -2,7 +2,7 @@ from pymongo import MongoClient
 import pymysql
 from yck_data_process.settingsManage import SettingsManage, MODEL
 from multiprocessing import Queue
-from yck_data_process.output_data import OutPutDataManage
+from yck_data_process.pipelineManage import OutPutDataManage
 from yck_data_process.testDriver.toolTestDriver import ToolTestDriver
 
 
