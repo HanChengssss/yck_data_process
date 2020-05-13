@@ -1,4 +1,5 @@
 from yck_data_process.pipelines.Tools import ToolSave
+from datetime import datetime
 
 
 class IncrementStock(object):
@@ -12,8 +13,9 @@ class IncrementStock(object):
         ret = ToolSave.test_exist(id_field=id_field, id_field_set=id_field_set)
         if ret:
             update_time = None
+            add_time = None
             if "add_time" in data:
-                data.pop("add_time")
+                add_time = data.pop("add_time")
             if "update_time" in data:
                 update_time = data.pop("update_time")
             new_data = ToolSave.sort_item(data)
@@ -23,6 +25,10 @@ class IncrementStock(object):
             if not compare_ret:
                 if update_time:
                     data["update_time"] = update_time
+                elif add_time:
+                    data["update_time"] = add_time
+                else:
+                    data["update_time"] = datetime.today()
                 # item["id_field"] = "model_id"
                 update_list.append(item)
             else:

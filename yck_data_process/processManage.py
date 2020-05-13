@@ -6,6 +6,7 @@ from yck_data_process.process.autoSettingProcess import SettingProcessManage
 from yck_data_process.process.bankInfoProcess import BankInfoProcessManage
 from yck_data_process.process.rankZhiyunProcess import RankProcessManage
 from yck_data_process.process.usedCarProcess import UsedCarProcessManage
+from yck_data_process.process.usedCarAfterProcess import UsedCarProcessAfterManage
 
 class ProcessManage():
     '''
@@ -18,6 +19,7 @@ class ProcessManage():
         "bank": {"func": BankInfoProcessManage},
         "rank_zhiyun": {"func": RankProcessManage},
         "used_car_pub": {"func": UsedCarProcessManage},
+        "used_car_pub_after": {"func": UsedCarProcessAfterManage},
     }
     
     @staticmethod
@@ -34,6 +36,7 @@ class ProcessManage():
         log_driver = Logger("{}\modelProcess.log".format(log_dir_mange.get_log_dir_full_path()), level='warning')
         while True:
             data_dic = input_queue.get()
+            # print(data_dic)
             if data_dic == "end":
                 # print("process_Manage is end")
                 log_driver.logger.info("process_Manage is end")

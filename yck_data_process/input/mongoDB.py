@@ -20,8 +20,6 @@ class MongodbSource():
                 else:
                     collection = db.get_collection(name=coll)  # 获取一个集合对象
                 MongodbSource.find_data(collection, input_queue)  # 将数据装载到队列中
-            input_queue.put("end")
-            print("input_queue have been finished !")
         finally:
             client.close()
 

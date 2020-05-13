@@ -20,14 +20,13 @@ class MysqldbSource():
         mysql_conn = pymysql.connect(**db_params)
         for data_info in used_car_pub_after:
             source = data_info.get("source")
-            # query_sql = "SELECT * FROM {table} WHERE TO_DAYS(add_time) BETWEEN TO_DAYS(DATE_ADD(NOW(),INTERVAL -1 MONTH)) AND TO_DAYS(NOW())".format(table=source)
-            query_sql = "SELECT * FROM {table}".format(table=source)
+            query_sql = "SELECT * FROM {table_a} A WHERE TO_DAYS(add_time) BETWEEN TO_DAYS(DATE_ADD(NOW(),INTERVAL -1 MONTH)) AND TO_DAYS(NOW()) AND id=(SELECT MAX(id) FROM {table_b} B WHERE A.car_id=B.car_id)".format(table_a=source, table_b=source)
+            # query_sql = "SELECT * FROM {table}".format(table=source)
             with mysql_conn.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(query_sql)
                 records = cursor.fetchall()
             print("============", len(records))
-            data_dic = MysqldbSource.package_data_list(records, data_info, input_queue)
-            input_queue.put(data_dic)
+            MysqldbSource.package_data_list(records, data_info, input_queue)
 
     @staticmethod
     def package_data(data_list, data_info):

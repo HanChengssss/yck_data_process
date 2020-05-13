@@ -41,7 +41,7 @@ class Manage(object):
 
     @staticmethod
     @fn_timer
-    def run_from_muiltiprocess():
+    def run_from_muiltiprocess(source_type):
         '''
         创建生产和消费队列
         往队列中装入待处理的数据
@@ -50,9 +50,9 @@ class Manage(object):
         '''
         input_queue = Manage.create_query()
         output_queue = Manage.create_query()
-        InputDataMange.input_data(input_queue)
+        InputDataMange.input_data(source_type, input_queue)
         process_data_job = Process(target=ProcessManage.process_data, args=(input_queue, output_queue))
-        out_put_data_job = Process(target=OutPutDataManage.out_put_data, args=(output_queue,))
+        out_put_data_job = Process(target=OutPutDataManage.out_put_data, args=(output_queue, source_type))
         process_data_job.start()
         out_put_data_job.start()
         process_data_job.join()
@@ -60,7 +60,7 @@ class Manage(object):
 
 
 if __name__ == '__main__':
-    Manage.run_from_muiltiprocess()
+    Manage.run_from_muiltiprocess("mysql")
 
 
 

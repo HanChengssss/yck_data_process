@@ -1,9 +1,4 @@
-import pymongo
-from pymongo import MongoClient
-import random
-from datetime import datetime
 from multiprocessing import Queue
-from yck_data_process.settingsManage import SettingsManage, MODEL
 from yck_data_process.input.mongoDB import MongodbSource
 from yck_data_process.input.mysqlDB import MysqldbSource
 
@@ -17,6 +12,8 @@ class InputDataMange():
     def input_data(source_type, input_queue):
         input_func = InputDataMange.SOURCE_FUNC_MAP.get(source_type)
         input_func.input_data(input_queue)
+        input_queue.put("end")
+        print("input_queue have been finished !")
 
 
 if __name__ == '__main__':

@@ -12,6 +12,7 @@ class CarIdProcess(object):
 class LogIdProcess(object):
     pass
 
+
 class UsedCarFieldProcess():
 
     @staticmethod

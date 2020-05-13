@@ -125,7 +125,12 @@ class PipelinesTypeMap():
     def get_pipeline_type(self):
         if self.data_type not in DATA_TYPE_PIPELINE_MAP:
             raise Exception("pipeline_type not exist !")
-        return DATA_TYPE_PIPELINE_MAP.get(self.data_type)
+        return DATA_TYPE_PIPELINE_MAP.get(self.data_type).get("pip_type")
+
+    def get_is_update(self):
+        if self.data_type not in DATA_TYPE_PIPELINE_MAP:
+            raise Exception("pipeline_type not exist !")
+        return DATA_TYPE_PIPELINE_MAP.get(self.data_type).get("isUpdate")
 
 
 

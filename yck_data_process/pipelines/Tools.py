@@ -68,7 +68,7 @@ class ToolSave():
         if "update_time" in new_data:
             new_data.pop("update_time")
         field_id = new_data[id_field_name]
-        keys = ','.join(new_data.keys())
+        keys = '`' + "`,`".join(new_data.keys()) + '`'
         query_sql = """select {keys} from {table_name} WHERE {id_field_name}='{field_id}'""".format(keys=keys, table_name=table_name, id_field_name=id_field_name, field_id=field_id)
         try:
             mysql_cursor.execute(query_sql)
@@ -108,7 +108,7 @@ class ToolSave():
 
     # todo 更新后返回的状态待完善
     @staticmethod
-    def update_is_process_status(mongodb, data_id, coll_name):
+    def update_is_process_status(db_mange, data_id, data_type):
         '''
         更新MongoDB中已处理数据的状态：
         isProcess: True, processCount+1
@@ -117,9 +117,13 @@ class ToolSave():
         :param coll_name: mongodb中集合的名称
         :return:
         '''
+        mongo_conn = pymongo.MongoClient(**db_mange.get_mongo_client_params())
+        mongodb = mongo_conn.get_database(db_mange.get_mongodb())
+        coll_name = db_mange.get_mongodb_coll_name(data_type)
         collection = mongodb.get_collection(coll_name)
         ret = collection.update_one({"_id": data_id}, {"$set": {"isProcess": True}, "$inc": {"processCount": 1}})
         print("pymongo 更新成功！")
+        mongo_conn.close()
 
     @staticmethod
     def update_mysql_one(mysql_conn, item, table, id_field_name):
@@ -137,7 +141,7 @@ class ToolSave():
             data = item
         if "id" in data:
             data.pop("id")
-        keys = "=%s,".join(data.keys()) + "=%s"
+        keys = "`" + "`=%s,`".join(data.keys()) + "`=%s"
         sql = 'UPDATE {table} SET {keys} WHERE {id_field} = "{filedId}"'.format(table=table, keys=keys, id_field=id_field_name, filedId=data[id_field_name])
         cursor = mysql_conn.cursor()
         try:
@@ -282,9 +286,8 @@ class ToolSave():
 
         log = logingDriver.Logger(filename="{}\dataError.log".format(log_dir_full_Path), level='error')
         log.logger.error("{} 的数据存储失败，错误信息{}".format(table, error_msg))
-
-        db_manage = pymongo.MongoClient(**db_manage.get_mongo_client_params())
-        db = db_manage.get_database(db_manage.get_mongodb())
+        mongo_conn = pymongo.MongoClient(**db_manage.get_mongo_client_params())
+        db = mongo_conn.get_database(db_manage.get_mongodb())
         ToolSave.insert_mongo_one(db, "error", item, table, type="error")
         c = db.get_collection()
         c.insert()
