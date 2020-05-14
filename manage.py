@@ -1,7 +1,6 @@
-# !/usr/bin/env python
 # -*-encoding: utf-8-*-
-# author:LiYanwei
-# version:0.1
+# author:HanCheng
+
 from multiprocessing import Process, Pool, Queue
 import time
 from yck_data_process.processManage import ProcessManage
@@ -10,7 +9,6 @@ from yck_data_process.pipelineManage import OutPutDataManage
 from functools import wraps
 from yck_data_process.logingDriver import Logger
 from yck_data_process.settingsManage import SettingsManage, MODEL
-from datetime import datetime
 import sys
 
 def fn_timer(function):
