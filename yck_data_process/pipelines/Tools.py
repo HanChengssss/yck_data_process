@@ -5,7 +5,6 @@ import traceback
 import datetime
 from yck_data_process import logingDriver
 import pymongo
-from yck_data_process.settingsManage import SettingsManage, MODEL
 
 
 # 创建一个工具类，将工具函数与存储逻辑分离
@@ -108,7 +107,7 @@ class ToolSave():
 
     # todo 更新后返回的状态待完善
     @staticmethod
-    def update_is_process_status(db_mange, data_id, data_type):
+    def update_is_process_status(db_mange, data_id, coll_name):
         '''
         更新MongoDB中已处理数据的状态：
         isProcess: True, processCount+1
@@ -119,14 +118,13 @@ class ToolSave():
         '''
         mongo_conn = pymongo.MongoClient(**db_mange.get_mongo_client_params())
         mongodb = mongo_conn.get_database(db_mange.get_mongodb())
-        coll_name = db_mange.get_mongodb_coll_name(data_type)
         collection = mongodb.get_collection(coll_name)
         ret = collection.update_one({"_id": data_id}, {"$set": {"isProcess": True}, "$inc": {"processCount": 1}})
         print("pymongo 更新成功！")
         mongo_conn.close()
 
     @staticmethod
-    def update_mysql_one(mysql_conn, item, table, id_field_name):
+    def update_mysql_one(mysql_conn, item, table, id_field_name, sm_instance):
         '''
         更新车型库中有变化的一条数据
         :param mysql_conn: MySQL 连接
@@ -150,12 +148,12 @@ class ToolSave():
 
         except Exception as e:
             mysql_conn.rollback()
-            ToolSave.log_error_data(item, table, str(e))
+            ToolSave.log_error_data(item, table, str(e), sm_instance)
         finally:
             cursor.close()
 
     @staticmethod
-    def update_mysql_many(mysql_conn, data_list, table, id_field_name):
+    def update_mysql_many(mysql_conn, data_list, table, id_field_name, sm_instance):
         '''
         :param mysql_conn: MySQL 连接
         :param dataList: 包含多条数据的列表 [itemA, itemB, itemC ...]
@@ -166,11 +164,11 @@ class ToolSave():
         if not data_list:
             return
         for item in data_list:
-            ToolSave.update_mysql_one(mysql_conn, item, table, id_field_name)
+            ToolSave.update_mysql_one(mysql_conn, item, table, id_field_name, sm_instance)
         print("update_mysql finish!")
 
     @staticmethod
-    def insert_mysql_one(mysql_conn, item, table):
+    def insert_mysql_one(mysql_conn, item, table, sm_instance):
         '''
         插入一条数据到mysql
         :param mysql_conn: MySQL 连接
@@ -196,12 +194,12 @@ class ToolSave():
                 # print("保存成功！")
         except Exception as e:
             mysql_conn.rollback()
-            ToolSave.log_error_data(item, table, str(e))
+            ToolSave.log_error_data(item, table, str(e), sm_instance)
         finally:
             cursor.close()
 
     @staticmethod
-    def insert_mysql_many(mysql_conn, data_list, table, hp=False):
+    def insert_mysql_many(mysql_conn, data_list, table, sm_instance, hp=False):
         '''
         批量插入MySQL数据库
         两种模式：普通/高性能
@@ -215,7 +213,7 @@ class ToolSave():
         '''
         if not hp:
             for item in data_list:
-                ToolSave.insert_mysql_one(mysql_conn, item, table)
+                ToolSave.insert_mysql_one(mysql_conn, item, table, sm_instance)
         # else:
         #     cursor = mysql_conn.cursor()
         #     if not dataList:
@@ -269,7 +267,7 @@ class ToolSave():
         return dt_object
 
     @staticmethod
-    def log_error_data(item, table, error_msg):
+    def log_error_data(item, table, error_msg, sm_instance):
         '''
         记录更新失败和插入失败的数据
         将失败的原因记录在dataError.log
@@ -279,22 +277,20 @@ class ToolSave():
         :param error_msg: 错误原因 <String>
         :return:
         '''
-        sm = SettingsManage(model=MODEL)
-        db_manage = sm.get_db_setting_instance()
-        log_path_manage = sm.get_log_setting_instance()
+        db_manage = sm_instance.get_db_setting_instance()
+        log_path_manage = sm_instance.get_log_setting_instance()
         log_dir_full_Path = log_path_manage.get_log_dir_full_path()
-
         log = logingDriver.Logger(filename="{}\dataError.log".format(log_dir_full_Path), level='error')
         log.logger.error("{} 的数据存储失败，错误信息{}".format(table, error_msg))
         mongo_conn = pymongo.MongoClient(**db_manage.get_mongo_client_params())
         db = mongo_conn.get_database(db_manage.get_mongodb())
-        ToolSave.insert_mongo_one(db, "error", item, table, type="error")
+        ToolSave.insert_mongo_one(db, "error", item, table, "error", sm_instance)
         c = db.get_collection()
         c.insert()
         db_manage.close()
 
     @staticmethod
-    def insert_mongo_one(mongodb, coll_name, item, table, type):
+    def insert_mongo_one(mongodb, coll_name, item, table, type, sm_instance):
         '''
         将一条doc插入mongodb
         :param mongodb: mongodb数据库连接（已选择数据库）
@@ -303,7 +299,7 @@ class ToolSave():
         :param table: Mysql table <String>
         :return:
         '''
-        collection = ToolSave.get_mongo_collection(mongodb, coll_name)
+        collection = ToolSave.get_mongo_collection(mongodb, coll_name, sm_instance)
         data_dic = ToolSave.package_data(item, table, type=type)
         try:
             collection.insert(data_dic)
@@ -311,7 +307,7 @@ class ToolSave():
             pass
 
     @staticmethod
-    def get_mongo_collection(db, coll_name):
+    def get_mongo_collection(db, coll_name, sm_instance):
         '''
         获取mongodb中集合
         如果集合不存在则创建
@@ -319,8 +315,7 @@ class ToolSave():
         :param coll_name: mongodb中集合的名称
         :return: 返回collection对象
         '''
-        sm = SettingsManage(model=MODEL)
-        db_manage = sm.get_db_setting_instance()
+        db_manage = sm_instance.get_db_setting_instance()
 
         coll_list = db.collection_names()
 

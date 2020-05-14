@@ -17,7 +17,7 @@ class IncrementPipeline(object):
             insert_list.append(item)
 
     @staticmethod
-    def process_data_dic(data_dic, mysql_conn):
+    def process_data_dic(data_dic, mysql_conn, sm_instance):
         table = data_dic.get("table")
         data_list = data_dic.get("dataList")
         insert_list = []
@@ -27,4 +27,4 @@ class IncrementPipeline(object):
         print("==========", table)
         for item in data_list:
             IncrementPipeline.process_item(item=item, insert_list=insert_list, id_field_set=id_field_set, mysql_conn=mysql_conn, table=table, id_field_name=id_field_name)
-        ToolSave.insert_mysql_many(mysql_conn=mysql_conn, data_list=insert_list, table=table, hp=False)
+        ToolSave.insert_mysql_many(mysql_conn, insert_list, table, sm_instance)

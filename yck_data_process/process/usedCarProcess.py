@@ -26,6 +26,7 @@ class UsedCarFieldProcess():
         data["car_id"] = str_to_hash(car_id_filed)
         data["log_id"] = str_to_hash(log_id_filed)
 
+
 class UsedCarProcessManage():
     @staticmethod
     def process_data_dic(data_dict, log_driver):

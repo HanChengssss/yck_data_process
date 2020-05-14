@@ -6,7 +6,7 @@
 import os
 from yck_data_process.settings.dbs import *
 from yck_data_process.settings.logPaths import *
-from yck_data_process.settings.pipelines import *
+from yck_data_process.settings.process import DATA_PROCESS_SETTING
 # 全局模式
 MODEL = "normal"
 
@@ -30,6 +30,9 @@ class SettingsManage():
     def get_log_setting_instance(self):
         return LogPathSetting(self.__model)
 
+    def get_dsp_setting_instance(self, source_type):
+        return DataProcessSetting(source_type)
+
 
 # 管理数据库配置
 class DBSetting():
@@ -45,14 +48,6 @@ class DBSetting():
         if self.model not in DATA_SAVE_MySQL:
             raise Exception("{} model in DATA_SAVE_MySQL not exist!".format(self.model))
         return DATA_SAVE_MySQL.get(self.model)
-
-    def get_mongodb_coll_name(self, data_type):
-        if data_type not in MONGODB_COLL_NAME_DICT:
-            raise Exception("{} model in MONGODB_COLL_NAME_DICT not exist!".format(data_type))
-        return MONGODB_COLL_NAME_DICT.get(data_type)
-
-    def get_coll_name_list(self):
-        return list(MONGODB_COLL_NAME_DICT.values())
 
     def get_mongodb(self):
         if self.model not in MONGODB_NAME_DIC:
@@ -77,11 +72,6 @@ class DBSetting():
         if self.model not in MONGO_CLIENT_PARAMS:
             raise Exception("{} model in MONGO_CLIENT_PARAMS not exist!".format(self.model))
         return MONGO_CLIENT_PARAMS.get(self.model)
-
-    def get_mysql_table_name_list(self, data_type):
-        if data_type not in MYSQL_TABLES_DIC:
-            raise Exception("{} dataType in mysqlTablesDic not exist!".format(data_type))
-        return MYSQL_TABLES_DIC.get(data_type)
 
 
 # 管理日志链接配置
@@ -118,21 +108,38 @@ class LogPathSetting():
         return log_dir_full_path
 
 
-class PipelinesTypeMap():
-    def __init__(self, data_type):
-        self.data_type = data_type
+class DataProcessSetting():
+    def __init__(self, source_type):
+        self.source_type = source_type
+        self.test_type_exist()
 
-    def get_pipeline_type(self):
-        if self.data_type not in DATA_TYPE_PIPELINE_MAP:
-            raise Exception("pipeline_type not exist !")
-        return DATA_TYPE_PIPELINE_MAP.get(self.data_type).get("pip_type")
+    def test_type_exist(self):
+        if self.source_type not in DATA_PROCESS_SETTING:
+            raise Exception("{} model in DATA_PROCESS_SETTING not exist!".format(self.source_type))
+        
+    def get_coll_name_list(self):
+        return list(DATA_PROCESS_SETTING.get(self.source_type).get("coll_setting").keys())
+
+    def get_pip_func(self, coll_name):
+        return DATA_PROCESS_SETTING.get(self.source_type).get("coll_setting").get(coll_name).get("pip_func")
+
+    def get_process_func(self, coll_name):
+        return DATA_PROCESS_SETTING.get(self.source_type).get("coll_setting").get(coll_name).get("process_func")
+
+    def get_input_func(self):
+        return DATA_PROCESS_SETTING.get(self.source_type).get("input_func")
 
     def get_is_update(self):
-        if self.data_type not in DATA_TYPE_PIPELINE_MAP:
-            raise Exception("pipeline_type not exist !")
-        return DATA_TYPE_PIPELINE_MAP.get(self.data_type).get("isUpdate")
+        return DATA_PROCESS_SETTING.get(self.source_type).get("update_is_process")
 
+    def get_id_field_name(self, coll_name):
+        if self.source_type != "mysql":
+            raise Exception("{} model in DATA_PROCESS_SETTING not have get_id_field_name!".format(self.source_type))
+        return DATA_PROCESS_SETTING.get(self.source_type).get("coll_setting").get(coll_name).get("id_field_name")
 
-
+    def get_table_name(self, coll_name):
+        if self.source_type != "mysql":
+            raise Exception("{} model in DATA_PROCESS_SETTING not have get_table_name!".format(self.source_type))
+        return DATA_PROCESS_SETTING.get(self.source_type).get("coll_setting").get(coll_name).get("table")
 
 

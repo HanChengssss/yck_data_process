@@ -11,7 +11,7 @@ from functools import wraps
 from yck_data_process.logingDriver import Logger
 from yck_data_process.settingsManage import SettingsManage, MODEL
 from datetime import datetime
-
+import sys
 
 def fn_timer(function):
     @wraps(function)
@@ -48,11 +48,13 @@ class Manage(object):
         开启处理进程和存储进程
         :return:
         '''
+        sm = SettingsManage(MODEL)
+        dps = sm.get_dsp_setting_instance(source_type)
         input_queue = Manage.create_query()
         output_queue = Manage.create_query()
-        InputDataMange.input_data(source_type, input_queue)
-        process_data_job = Process(target=ProcessManage.process_data, args=(input_queue, output_queue))
-        out_put_data_job = Process(target=OutPutDataManage.out_put_data, args=(output_queue, source_type))
+        InputDataMange.input_data(input_queue, sm, dps)
+        process_data_job = Process(target=ProcessManage.process_data, args=(input_queue, output_queue, sm, dps))
+        out_put_data_job = Process(target=OutPutDataManage.out_put_data, args=(output_queue, sm, dps))
         process_data_job.start()
         out_put_data_job.start()
         process_data_job.join()
@@ -60,11 +62,5 @@ class Manage(object):
 
 
 if __name__ == '__main__':
-    Manage.run_from_muiltiprocess("mysql")
-
-
-
-
-
-
-
+    source_type = sys.argv[1]
+    Manage.run_from_muiltiprocess(source_type)
