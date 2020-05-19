@@ -320,7 +320,7 @@ class ToolSave():
         coll_list = db.collection_names()
 
         if coll_name not in coll_list:
-            collection = db.create_collection(name=coll_name, **db_manage.get_creatMongodbCollParm())  # 创建一个集合
+            collection = db.create_collection(name=coll_name, **db_manage.get_creat_mongodb_coll_parm())  # 创建一个集合
         else:
             collection = db.get_collection(name=coll_name)  # 获取一个集合对象
         return collection
