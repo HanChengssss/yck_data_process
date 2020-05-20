@@ -11,6 +11,7 @@ class IncrementPipeline(object):
             data = item["data"]
         else:
             data = item
+        # print("*******", data)
         id_field = data.get(id_field_name)
         ret = ToolSave.test_exist(id_field=id_field, id_field_set=id_field_set)
         if not ret:

@@ -27,7 +27,7 @@ DATA_PROCESS_SETTING = {
         "coll_setting": {
             "model_coll": {"pip_func": IncrementStock, "process_func": ModelProcessManage},
             "setting_coll": {"pip_func": IncrementStock, "process_func": SettingProcessManage},
-            "used_car_pub_coll": {"pip_func": IncrementStock, "process_func": UsedCarProcessManage},
+            "used_car_pub_coll": {"pip_func": IncrementPipeline, "process_func": UsedCarProcessManage},
             "rank_zhiyun_coll": {"pip_func": IncrementPipeline, "process_func": RankProcessManage},
             "bank_coll": {"pip_func": IncrementStock, "process_func": BankInfoProcessManage},
             # "sale_coll": {"pip_func": None, "process_func": None},

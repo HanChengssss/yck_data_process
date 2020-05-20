@@ -285,9 +285,7 @@ class ToolSave():
         mongo_conn = pymongo.MongoClient(**db_manage.get_mongo_client_params())
         db = mongo_conn.get_database(db_manage.get_mongodb())
         ToolSave.insert_mongo_one(db, "error", item, table, "error", sm_instance)
-        c = db.get_collection()
-        c.insert()
-        db_manage.close()
+        mongo_conn.close()
 
     @staticmethod
     def insert_mongo_one(mongodb, coll_name, item, table, type, sm_instance):

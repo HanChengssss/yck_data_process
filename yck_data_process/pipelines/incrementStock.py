@@ -20,20 +20,24 @@ class IncrementStock(object):
                 update_time = data.pop("update_time")
             new_data = ToolSave.sort_item(data)
             old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysql_conn=mysql_conn, id_field_name=id_field_name)
-            old_data = ToolSave.sort_item(old_data)
-            compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
-            if not compare_ret:
-                if update_time:
-                    data["update_time"] = update_time
-                elif add_time:
-                    data["update_time"] = add_time
-                else:
-                    data["update_time"] = datetime.today()
-                # item["id_field"] = "model_id"
-                update_list.append(item)
-            else:
+            if not old_data:
+                # print("数据不存在！")
                 pass
-                # print("数据无变化！")
+            else:
+                old_data = ToolSave.sort_item(old_data)
+                compare_ret = ToolSave.compare_data(new_data=new_data, old_data=old_data)
+                if not compare_ret:
+                    if update_time:
+                        data["update_time"] = update_time
+                    elif add_time:
+                        data["update_time"] = add_time
+                    else:
+                        data["update_time"] = datetime.today()
+                    # item["id_field"] = "model_id"
+                    update_list.append(item)
+                else:
+                    # print("数据无变化！")
+                    pass
         else:
             insert_list.append(item)
 
