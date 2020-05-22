@@ -15,10 +15,10 @@ class BaseStorePipeline(object):
         data_list = data_dic.get("dataList")
         id_field_name = data_dic["id_field_name"]
         id_field_set = BaseStorePipeline.get_filter_set(table, mysql_conn, id_field_name)
-        BaseStorePipeline.process_data_list(data_list, id_field_set, mysql_conn, table, id_field_name)
+        BaseStorePipeline.process_data_list(data_list, id_field_set, mysql_conn, table, id_field_name, sm_instance)
 
     @staticmethod
-    def process_data_list(data_list, id_field_set, mysql_conn, table, id_field_name):
+    def process_data_list(data_list, id_field_set, mysql_conn, table, id_field_name, sm_instance):
         container = BaseStorePipeline.creat_data_container()
         for item in data_list:
             if "data" in item:
@@ -26,7 +26,7 @@ class BaseStorePipeline(object):
             else:
                 data = item
             BaseStorePipeline.process_data(data, container, id_field_set, mysql_conn, table, id_field_name)
-            BaseStorePipeline.store_data(container)
+            BaseStorePipeline.store_data(container, mysql_conn, table, sm_instance, id_field_name)
 
     @staticmethod
     def get_filter_set(table, mysql_conn, id_field_name):
@@ -48,5 +48,5 @@ class BaseStorePipeline(object):
         pass
 
     @staticmethod
-    def store_data(container):
+    def store_data(container, mysql_conn, table, sm_instance, id_field_name):
         pass
