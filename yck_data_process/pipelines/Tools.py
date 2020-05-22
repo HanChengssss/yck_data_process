@@ -22,10 +22,16 @@ class ToolSave():
         '''
 
         mysql_cursor = mysql_conn.cursor()
-        sql = "SELECT {id_field} FROM {table}".format(id_field=id_field_name, table=table)
+        # count_query = "SELECT COUNT(1) FROM {table}".format(table=table)
         # print(sql)
         # sql = "SELECT %s FROM {table}".format(table)
-        mysql_cursor.execute(sql)
+        # mysql_cursor.execute(count_query)
+        # count = int(mysql_cursor.fetchone()[0])
+        # if count > 500000:
+        #     query_sql = "SELECT {id_field} FROM {table} ORDER BY add_time DESC LIMIT {count}".format(id_field=id_field_name, table=table, count=int(count/3))
+        # else:
+        query_sql = "SELECT {id_field} FROM {table}".format(id_field=id_field_name, table=table)
+        mysql_cursor.execute(query_sql)
         model_id_list = mysql_cursor.fetchall()
         id_field_set = set()
         try:
@@ -34,6 +40,36 @@ class ToolSave():
             return id_field_set
         finally:
             mysql_cursor.close()
+
+    @staticmethod
+    def get_compare_set(mysql_conn, table, id_field_name, condition_field, condition_list):
+        '''
+        :param mysql_conn: 连接
+        :param id_field: 数据唯一标识字段，必须是能被转换成整形的字段
+        :param table: 数据表名
+        :return:返回一个过滤集合
+        '''
+
+        mysql_cursor = mysql_conn.cursor()
+        # count_query = "SELECT COUNT(1) FROM {table}".format(table=table)
+        # print(sql)
+        # sql = "SELECT %s FROM {table}".format(table)
+        # mysql_cursor.execute(count_query)
+        # count = int(mysql_cursor.fetchone()[0])
+        # if count > 500000:
+        #     query_sql = "SELECT {id_field} FROM {table} ORDER BY add_time DESC LIMIT {count}".format(id_field=id_field_name, table=table, count=int(count/3))
+        # else:
+        query_sql = "SELECT `{id_field}` FROM `{table}` WHERE `{condition_field}` IN {condition_list}".format(id_field=id_field_name, table=table, condition_field=condition_field, condition_list=tuple(condition_list))
+        mysql_cursor.execute(query_sql)
+        model_id_list = mysql_cursor.fetchall()
+        id_field_set = set()
+        try:
+            for m in model_id_list:
+                id_field_set.add(str(m[0]))
+            return id_field_set
+        finally:
+            mysql_cursor.close()
+
 
     @staticmethod
     def compare_data(new_data, old_data):

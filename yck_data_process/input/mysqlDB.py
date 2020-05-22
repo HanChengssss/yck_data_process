@@ -10,7 +10,7 @@ class MysqldbSource():
         mysql_conn = pymysql.connect(**db_params)
         coll_names = dps_instance.get_coll_name_list()
         for coll in coll_names:
-            query_sql = "SELECT * FROM {table_a} A WHERE TO_DAYS(add_time) BETWEEN TO_DAYS(DATE_ADD(NOW(),INTERVAL -1 MONTH)) AND TO_DAYS(NOW()) AND id=(SELECT MAX(id) FROM {table_b} B WHERE A.car_id=B.car_id)".format(table_a=coll, table_b=coll)
+            query_sql = "SELECT * FROM {} WHERE id IN (SELECT MAX(id) AS m_id FROM {} WHERE TO_DAYS(add_time) BETWEEN TO_DAYS(DATE_ADD(NOW(), INTERVAL - 1 MONTH)) AND TO_DAYS(NOW()) GROUP BY car_id);".format(coll, coll)
             # query_sql = "SELECT * FROM {table}".format(table=source)
             with mysql_conn.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(query_sql)

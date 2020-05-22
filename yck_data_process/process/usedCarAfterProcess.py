@@ -12,6 +12,8 @@ class UsedCarFieldAfterProcess():
         else:
             data["update_time"] = datetime.today()
             data["add_time"] = datetime.today()
+        if "id" in data:
+            del data["id"]
 
 
 class UsedCarProcessAfterManage():
