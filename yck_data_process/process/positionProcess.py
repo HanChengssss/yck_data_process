@@ -27,7 +27,7 @@ class PositionProcess():
 
 
 def replace_key_name(func):
-    print("replace_key_name...")
+    # print("replace_key_name...")
     def new_func(data, filed_name_list, logDriver, table, process_fun):
         # logDriver.logger.info("将字段名称title替换成position")
         data["position"] = data.pop("title")

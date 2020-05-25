@@ -16,7 +16,7 @@ class SettingsManage():
 
     def __init__(self, model):
         self.__model = model
-        print("SettingMange model is {}".format(self.__model))
+        # print("SettingMange model is {}".format(self.__model))
 
     def set_model(self, model):
         self.__model = model

@@ -49,6 +49,6 @@ class SinglePipeline(BaseStorePipeline):
         return container
 
     @staticmethod
-    def store_data(container, mysql_conn, table, sm_instance):
+    def store_data(container, mysql_conn, table, sm_instance, id_field_name):
         insert_list = container["insert_list"]
         ToolSave.insert_mysql_many(mysql_conn, insert_list, table, sm_instance)

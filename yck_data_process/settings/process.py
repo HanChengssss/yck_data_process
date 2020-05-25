@@ -18,8 +18,8 @@ DATA_PROCESS_SETTING = {
         "input_func": MysqldbSource,
         "update_is_process": False,
         "coll_setting": {
-            # "spider_log_ali": {"pip_func": TwoMixPipeline, "process_func": UsedCarProcessAfterManage, "table": "spider_www_ali", "id_field_name": "car_id"},
-            # "spider_www_168": {"pip_func": TwoMixPipeline, "process_func": UsedCarProcessAfterManage, "table": "spider_www_168", "id_field_name": "car_id"},
+            "spider_log_ali": {"pip_func": TwoMixPipeline, "process_func": UsedCarProcessAfterManage, "table": "spider_www_ali", "id_field_name": "car_id"},
+            "spider_www_168": {"pip_func": TwoMixPipeline, "process_func": UsedCarProcessAfterManage, "table": "spider_www_168", "id_field_name": "car_id"},
             "spider_log_58": {"pip_func": TwoMixPipeline, "process_func": UsedCarProcessAfterManage, "table": "spider_www_58", "id_field_name": "car_id"},
             "spider_log_xin": {"pip_func": TwoMixPipeline, "process_func": UsedCarProcessAfterManage, "table": "spider_www_xin", "id_field_name": "car_id"},
             "spider_log_yiche": {"pip_func": TwoMixPipeline, "process_func": UsedCarProcessAfterManage, "table": "spider_www_yiche", "id_field_name": "car_id"},

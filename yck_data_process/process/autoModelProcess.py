@@ -195,7 +195,7 @@ class SeatNumberProcess():
 # 只有che300需要对model_name进行处理
 def filter_table(func):
 
-    print("filter_table...")
+    # print("filter_table...")
 
     def new_func(data, filed_name_list, log_driver, table, process_fun):
         if "model_name" in filed_name_list and table != "config_che300_major_info":

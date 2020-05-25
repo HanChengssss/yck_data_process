@@ -17,7 +17,7 @@ class Logger(object):
     }  # 日志级别关系映射
 
     def __init__(self, filename, level='info', when='D', backCount=14, fmt='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'):
-        print("初始化Logger....")
+        # print("初始化Logger....")
         self.logger = logging.getLogger(filename)
         format_str = logging.Formatter(fmt)  # 设置日志格式
         self.logger.setLevel(self.level_relations.get(level))  # 设置日志级别
