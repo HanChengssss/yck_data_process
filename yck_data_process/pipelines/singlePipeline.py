@@ -32,23 +32,22 @@ from yck_data_process.pipelines.basePipeline import BaseStorePipeline
 
 
 class SinglePipeline(BaseStorePipeline):
-    @staticmethod
-    def process_data(data, container, id_field_set, mysql_conn, table, id_field_name):
+
+    def process_data(self, data, container, id_field_set, mysql_conn, table, id_field_name):
         insert_list = container["insert_list"]
         id_field = data.get(id_field_name)
         ret = ToolSave.test_exist(id_field=id_field, id_field_set=id_field_set)
         if not ret:
             insert_list.append(data)
+            # print(data)
         else:
             pass
 
-    @staticmethod
-    def creat_data_container():
+    def creat_data_container(self):
         container = dict()
         container["insert_list"] = []
         return container
 
-    @staticmethod
-    def store_data(container, mysql_conn, table, sm_instance, id_field_name):
+    def store_data(self, container, mysql_conn, table, sm_instance, id_field_name):
         insert_list = container["insert_list"]
         ToolSave.insert_mysql_many(mysql_conn, insert_list, table, sm_instance)

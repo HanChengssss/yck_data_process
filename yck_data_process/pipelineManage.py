@@ -33,7 +33,7 @@ class OutPutDataManage():
                 try:
                     coll = data_dic.get("coll_name")
                     data_pipeline_func = dps_instance.get_pip_func(coll)
-                    data_pipeline_func.process_data_dic(data_dic, mysql_conn, sm_instance)
+                    data_pipeline_func().process_data_dic(data_dic, mysql_conn, sm_instance)
                     is_update = dps_instance.get_is_update()
                     if is_update:
                         ToolSave.update_is_process_status(db_mange, data_dic["_id"], coll)

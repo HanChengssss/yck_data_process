@@ -112,18 +112,16 @@ from datetime import datetime
 #         ToolSave.insert_mysql_many(mysql_conn, insert_list, table, sm_instance)
 
 class BaseMixPipeline(BaseStorePipeline):
-    @staticmethod
-    def process_data_list(data_list, id_field_set, mysql_conn, table, id_field_name, sm_instance, container):
+    def process_data_list(self, data_list, id_field_set, mysql_conn, table, id_field_name, sm_instance, container):
         for item in data_list:
             if "data" in item:
                 data = item["data"]
             else:
                 data = item
-            TwoMixPipeline.process_data(data, container, id_field_set, mysql_conn, table, id_field_name)
-        TwoMixPipeline.sub_process_data(container, mysql_conn, table)
+            self.process_data(data, container, id_field_set, mysql_conn, table, id_field_name)
+        self.sub_process_data(container, mysql_conn, table, id_field_name)
 
-    @staticmethod
-    def process_data(data, container, id_field_set, mysql_conn, table, id_field_name):
+    def process_data(self, data, container, id_field_set, mysql_conn, table, id_field_name):
         insert_list = container["insert_list"]
         compare_list = container["compare_list"]
         id_field = data.get(id_field_name)
@@ -133,29 +131,30 @@ class BaseMixPipeline(BaseStorePipeline):
         else:
             compare_list.append(data)
 
-    @staticmethod
-    def store_data(container, mysql_conn, table, sm_instance, id_field_name):
+    def store_data(self, container, mysql_conn, table, sm_instance, id_field_name):
         insert_list = container["insert_list"]
         update_list = container["update_list"]
         ToolSave.update_mysql_many(mysql_conn, update_list, table, id_field_name, sm_instance)
         ToolSave.insert_mysql_many(mysql_conn, insert_list, table, sm_instance)
 
-    @staticmethod
-    def creat_data_container():
+    def creat_data_container(self):
         container = dict()
         container["insert_list"] = []
         container["update_list"] = []
         container["compare_list"] = []
         return container
 
+    def sub_process_data(self, container, mysql_conn, table, id_field_name):
+        pass
+
 
 class OneMixPipeline(BaseMixPipeline):
-    @staticmethod
-    def sub_process_data(container, mysql_conn, table, id_field_name):
+
+    def sub_process_data(self, container, mysql_conn, table, id_field_name):
         compare_list = container["compare_list"]
         update_list = container["update_list"]
         for data in compare_list:
-            time_container = OneMixPipeline.separate_time(data)
+            time_container = self.separate_time(data)
             new_data = ToolSave.sort_item(data)
             old_data = ToolSave.get_old_data(new_data=data, table_name=table, mysql_conn=mysql_conn,
                                              id_field_name=id_field_name)
@@ -169,11 +168,10 @@ class OneMixPipeline(BaseMixPipeline):
                     '''数据无变化！'''
                     pass
                 else:
-                    OneMixPipeline.voluation_time(data, time_container)
+                    self.voluation_time(data, time_container)
                     update_list.append(data)
 
-    @staticmethod
-    def separate_time(data):
+    def separate_time(self, data):
         if "add_time" in data:
             add_time = data.pop("add_time")
         else:
@@ -184,8 +182,7 @@ class OneMixPipeline(BaseMixPipeline):
             update_time = None
         return {"add_time": add_time, "update_time": update_time}
 
-    @staticmethod
-    def voluation_time(data, time_container):
+    def voluation_time(self, data, time_container):
         update_time = time_container["update_time"]
         add_time = time_container["add_time"]
         if update_time:
@@ -197,13 +194,13 @@ class OneMixPipeline(BaseMixPipeline):
 
 
 class TwoMixPipeline(BaseMixPipeline):
-    @staticmethod
-    def sub_process_data(container, mysql_conn, table):
+
+    def sub_process_data(self, container, mysql_conn, table, id_field_name):
         compare_list = container["compare_list"]
         update_list = container["update_list"]
         new_data_log_id_set = set([data["log_id"] for data in compare_list])
         new_data_car_id_set = set([data["car_id"] for data in compare_list])
-        old_data_log_id_set = ToolSave.get_compare_set(mysql_conn=mysql_conn, table=table, id_field_name="log_id",
+        old_data_log_id_set = ToolSave.get_compare_set(mysql_conn=mysql_conn, table=table, id_field_name=id_field_name,
                                                        condition_field="car_id", condition_list=new_data_car_id_set)
         diff_log_id_set = new_data_log_id_set - old_data_log_id_set
         for data in compare_list:
