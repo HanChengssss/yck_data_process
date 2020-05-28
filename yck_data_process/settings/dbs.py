@@ -33,7 +33,7 @@ DATA_SAVE_MySQL = {
     port=3306,
     user="root",
     passwd="123456",
-    db="test2",
+    db="test",
     charset="utf8",
     )
 }

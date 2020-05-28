@@ -16,6 +16,7 @@ class BaseStorePipeline(object):
         id_field_name = data_dic["id_field_name"]
         container = self.creat_data_container()
         id_field_set = self.get_filter_set(table, mysql_conn, id_field_name)
+        # id_field_set = set()
         self.process_data_list(data_list, id_field_set, mysql_conn, table, id_field_name, sm_instance, container)
         self.store_data(container, mysql_conn, table, sm_instance, id_field_name)
 

@@ -11,7 +11,6 @@ class MysqldbSource():
         coll_names = dps_instance.get_coll_name_list()
         for coll in coll_names:
             query_sql = "SELECT * FROM {} WHERE id IN (SELECT MAX(id) AS m_id FROM {} WHERE TO_DAYS(add_time) BETWEEN TO_DAYS(DATE_ADD(NOW(), INTERVAL - 1 MONTH)) AND TO_DAYS(NOW()) GROUP BY car_id);".format(coll, coll)
-            # query_sql = "SELECT * FROM {table}".format(table=source)
             with mysql_conn.cursor(cursor=pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(query_sql)
                 records = cursor.fetchall()
@@ -40,7 +39,9 @@ class MysqldbSource():
     @staticmethod
     def package_data_list(all_records, data_info, input_queue):
         max_len = 1000
-        if len(all_records) <= max_len:
+        if len(all_records) == 0:
+            return
+        elif len(all_records) <= max_len:
             data_dic = MysqldbSource.package_data(all_records, data_info)
             input_queue.put(data_dic)
         else:

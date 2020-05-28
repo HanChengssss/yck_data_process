@@ -25,46 +25,40 @@ data_info_list = [
 
 class BaseProcess():
 
-    @staticmethod
-    def process_data(data):
-        BaseProcess.process_time(data)
-        car_id_str = BaseProcess.product_car_id_str(data)
-        log_id_str = BaseProcess.product_log_id_str(data)
-        data["car_id"] = BaseProcess.str_to_hash(car_id_str)
-        data["log_id"] = BaseProcess.str_to_hash(log_id_str)
+    def process_data(self, data):
+        self.process_time(data)
+        car_id_str = self.product_car_id_str(data)
+        log_id_str = self.product_log_id_str(data)
+        data["car_id"] = self.str_to_hash(car_id_str)
+        data["log_id"] = self.str_to_hash(log_id_str)
 
-    @staticmethod
-    def process_time(data):
+    def process_time(self, data):
         if "update_time" in data:
             data.pop("update_time")
         if "add_time" not in data:
             data["add_time"] = datetime.today()
 
-    @staticmethod
-    def str_to_hash(strs):
+    def str_to_hash(self, strs):
         hash_code = hashlib.sha1(strs.encode("utf8")).hexdigest()
         return hash_code
 
-    @staticmethod
-    def product_car_id_str(data):
+    def product_car_id_str(self, data):
         return "-"
 
-    @staticmethod
-    def product_log_id_str(data):
+    def product_log_id_str(self, data):
         return "-"
 
 
 class OneProcess(BaseProcess):
-    @staticmethod
-    def product_car_id_str(data):
+
+    def product_car_id_str(self, data):
         if data.get("url"):
             car_id_str = str(data["url"])
         else:
             car_id_str = "-"
         return car_id_str
 
-    @staticmethod
-    def product_log_id_str(data):
+    def product_log_id_str(self, data):
         if data.get("url") and data.get("quotes"):
             log_id_str = str(data["url"]) + str(data["quotes"])
         else:
@@ -73,16 +67,14 @@ class OneProcess(BaseProcess):
 
 
 class TwoProcess(BaseProcess):
-    @staticmethod
-    def product_car_id_str(data):
+    def product_car_id_str(self, data):
         if data.get("car_id"):
             car_id_str = str(data["car_id"])
         else:
             car_id_str = "-"
         return car_id_str
 
-    @staticmethod
-    def product_log_id_str(data):
+    def product_log_id_str(self, data):
         if data.get("car_id") and data.get("quotes"):
             log_id_str = str(data["car_id"]) + str(data["quotes"])
         else:
@@ -91,43 +83,38 @@ class TwoProcess(BaseProcess):
 
 
 class ThreeProcess(BaseProcess):
-    @staticmethod
-    def product_car_id_str(data):
+    def product_car_id_str(self, data):
         if data.get("id"):
             car_id_str = str(data["id"])
         else:
             car_id_str = "-"
         return car_id_str
 
-    @staticmethod
-    def product_log_id_str(data):
+    def product_log_id_str(self, data):
         if data.get("id") and data.get("quotes"):
             log_id_str = str(data["id"]) + str(data["quotes"])
         else:
             log_id_str = "-"
         return log_id_str
 
-    @staticmethod
-    def process_data(data):
-        ThreeProcess.process_time(data)
-        car_id_str = ThreeProcess.product_car_id_str(data)
-        log_id_str = ThreeProcess.product_log_id_str(data)
-        data["car_id"] = ThreeProcess.str_to_hash(car_id_str)
-        data["log_id"] = ThreeProcess.str_to_hash(log_id_str)
+    def process_data(self, data):
+        self.process_time(data)
+        car_id_str = self.product_car_id_str(data)
+        log_id_str = self.product_log_id_str(data)
+        data["car_id"] = self.str_to_hash(car_id_str)
+        data["log_id"] = self.str_to_hash(log_id_str)
         data.pop("id")
 
 
 class FourProcess(BaseProcess):
-    @staticmethod
-    def product_car_id_str(data):
+    def product_car_id_str(self, data):
         if data.get("car_id"):
             car_id_str = str(data["car_id"])
         else:
             car_id_str = "-"
         return car_id_str
 
-    @staticmethod
-    def product_log_id_str(data):
+    def product_log_id_str(self, data):
         if data.get("car_id") and data.get("bid_price"):
             log_id_str = str(data["car_id"]) + str(data["bid_price"])
         else:
@@ -136,16 +123,14 @@ class FourProcess(BaseProcess):
 
 
 class FiveProcess(BaseProcess):
-    @staticmethod
-    def product_car_id_str(data):
+    def product_car_id_str(self, data):
         if data.get("detail_url"):
             car_id_str = str(data["detail_url"])
         else:
             car_id_str = "-"
         return car_id_str
 
-    @staticmethod
-    def product_log_id_str(data):
+    def product_log_id_str(self, data):
         if data.get("detail_url") and data.get("currentPrice") and data.get("startPrice"):
             log_id_str = str(data["detail_url"]) + str(data["currentPrice"]) + str(data["startPrice"])
         else:
@@ -185,7 +170,8 @@ class UsedCarProcessManage():
                 data = d["data"]
             else:
                 data = d
-            func_dic.get(table).process_data(data)
+            func = func_dic.get(table)
+            func().process_data(data)
 
 
 

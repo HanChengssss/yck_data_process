@@ -59,7 +59,12 @@ class ToolSave():
         # if count > 500000:
         #     query_sql = "SELECT {id_field} FROM {table} ORDER BY add_time DESC LIMIT {count}".format(id_field=id_field_name, table=table, count=int(count/3))
         # else:
-        query_sql = "SELECT `{id_field}` FROM `{table}` WHERE `{condition_field}` IN {condition_list}".format(id_field=id_field_name, table=table, condition_field=condition_field, condition_list=tuple(condition_list))
+        list_len = len(condition_list)
+        if list_len == 1:
+            query_sql = "SELECT `{id_field}` FROM `{table}` WHERE `{condition_field}`='{condition}'".format(id_field=id_field_name, table=table, condition_field=condition_field, condition=condition_list.pop())
+        else:
+            query_sql = "SELECT `{id_field}` FROM `{table}` WHERE `{condition_field}` IN {condition_list}".format(id_field=id_field_name, table=table, condition_field=condition_field, condition_list=tuple(condition_list))
+        print("compare_set-------", query_sql)
         mysql_cursor.execute(query_sql)
         model_id_list = mysql_cursor.fetchall()
         id_field_set = set()
@@ -175,6 +180,7 @@ class ToolSave():
             data = item
         if "id" in data:
             data.pop("id")
+        print("update data:", data)
         keys = "`" + "`=%s,`".join(data.keys()) + "`=%s"
         sql = 'UPDATE {table} SET {keys} WHERE {id_field} = "{filedId}"'.format(table=table, keys=keys, id_field=id_field_name, filedId=data[id_field_name])
         cursor = mysql_conn.cursor()
@@ -222,7 +228,7 @@ class ToolSave():
         values = ",".join(["%s"] * len(data))
         sql = 'INSERT INTO {table} ({keys}) VALUES ({values})'.format(table=table, keys=keys, values=values)
         # print(sql)
-        # print(values)
+        print("insert data:", data)
         try:
             # raise Exception
             if cursor.execute(sql, tuple(data.values())):

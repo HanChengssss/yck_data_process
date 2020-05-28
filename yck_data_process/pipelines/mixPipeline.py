@@ -127,8 +127,10 @@ class BaseMixPipeline(BaseStorePipeline):
         id_field = data.get(id_field_name)
         ret = ToolSave.test_exist(id_field=id_field, id_field_set=id_field_set)
         if not ret:
+            print("append insert data", data)
             insert_list.append(data)
         else:
+            print("append compare data", data)
             compare_list.append(data)
 
     def store_data(self, container, mysql_conn, table, sm_instance, id_field_name):
@@ -153,6 +155,8 @@ class OneMixPipeline(BaseMixPipeline):
     def sub_process_data(self, container, mysql_conn, table, id_field_name):
         compare_list = container["compare_list"]
         update_list = container["update_list"]
+        if not compare_list:
+            return
         for data in compare_list:
             time_container = self.separate_time(data)
             new_data = ToolSave.sort_item(data)
@@ -198,12 +202,19 @@ class TwoMixPipeline(BaseMixPipeline):
     def sub_process_data(self, container, mysql_conn, table, id_field_name):
         compare_list = container["compare_list"]
         update_list = container["update_list"]
+        if not compare_list:
+            return
         new_data_log_id_set = set([data["log_id"] for data in compare_list])
         new_data_car_id_set = set([data["car_id"] for data in compare_list])
-        old_data_log_id_set = ToolSave.get_compare_set(mysql_conn=mysql_conn, table=table, id_field_name=id_field_name,
+        old_data_log_id_set = ToolSave.get_compare_set(mysql_conn=mysql_conn, table=table, id_field_name="log_id",
                                                        condition_field="car_id", condition_list=new_data_car_id_set)
+
         diff_log_id_set = new_data_log_id_set - old_data_log_id_set
+
         for data in compare_list:
             log_id = data["log_id"]
             if log_id in diff_log_id_set:
+                # print("new data's log_id", log_id)
+                # print("new data's car_id", data["car_id"])
+                print("append update data", data)
                 update_list.append(data)

@@ -37,7 +37,9 @@ class SinglePipeline(BaseStorePipeline):
         insert_list = container["insert_list"]
         id_field = data.get(id_field_name)
         ret = ToolSave.test_exist(id_field=id_field, id_field_set=id_field_set)
+        # print(data)
         if not ret:
+            print("append insert data")
             insert_list.append(data)
             # print(data)
         else:

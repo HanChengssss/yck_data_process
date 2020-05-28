@@ -16,5 +16,5 @@ if __name__ == '__main__':
     dps = sm.get_dsp_setting_instance("mysql")
     i = InputDataMange()
     i.input_data(q, sm, dps)
-    print(q.qsize())
+    print(q.get())
 
