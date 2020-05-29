@@ -217,4 +217,6 @@ class TwoMixPipeline(BaseMixPipeline):
                 # print("new data's log_id", log_id)
                 # print("new data's car_id", data["car_id"])
                 print("append update data", data)
+                if "add_time" in data:
+                    data.pop("add_time")
                 update_list.append(data)
