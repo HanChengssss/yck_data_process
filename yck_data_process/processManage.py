@@ -26,6 +26,7 @@ class ProcessManage():
                 break
             coll = data_dic.get("coll_name")
             data_process_func = dps_instance.get_process_func(coll)
-            data_process_func.process_data_dic(data_dic, log_driver)
+            if data_process_func is not None:
+                data_process_func.process_data_dic(data_dic, log_driver)
             output_queue.put(data_dic)
 
