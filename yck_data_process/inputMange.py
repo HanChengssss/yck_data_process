@@ -13,7 +13,7 @@ class InputDataMange():
 if __name__ == '__main__':
     q = Queue()
     sm = SettingsManage(MODEL)
-    dps = sm.get_dsp_setting_instance("mysql")
+    dps = sm.get_dsp_setting_instance("mongo")
     i = InputDataMange()
     i.input_data(q, sm, dps)
     print(q.get())

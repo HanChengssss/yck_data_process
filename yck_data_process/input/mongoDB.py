@@ -14,7 +14,8 @@ class MongodbSource():
             # 如果现有集合中没有，新建一个集合
             for coll in dps_instance.get_coll_name_list():
                 if coll not in coll_list:
-                    collection = db.create_collection(name=coll, **db_manage.get_creat_mongodb_coll_parm())  # 创建一个集合
+                    # collection = db.create_collection(name=coll, **db_manage.get_creat_mongodb_coll_parm())  # 创建一个集合
+                    collection = db.create_collection(name=coll)  # 创建一个集合
                 else:
                     collection = db.get_collection(name=coll)  # 获取一个集合对象
                 MongodbSource.find_data(collection, input_queue, coll, dps_instance.source_type)  # 将数据装载到队列中
