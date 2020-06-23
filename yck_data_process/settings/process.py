@@ -42,12 +42,13 @@ DATA_PROCESS_SETTING = {
         "update_is_process": True,
         "coll_setting": {
             "model_coll": {"pip_func": OneMixPipeline, "process_func": ModelProcessManage},
-            "setting_coll": {"pip_func": OneMixPipeline, "process_func": SettingProcessManage},
+            # "setting_coll": {"pip_func": OneMixPipeline, "process_func": SettingProcessManage},
             # "used_car_pub_coll": {"pip_func": SinglePipeline, "process_func": UsedCarProcessManage},
-            "rank_zhiyun_coll": {"pip_func": SinglePipeline, "process_func": RankProcessManage},
-            "bank_coll": {"pip_func": OneMixPipeline, "process_func": BankInfoProcessManage},
-            "network_index_coll": {"pip_func": SinglePipeline, "process_func": None},
-            "new_car_release_coll": {"pip_func": SinglePipeline, "process_func": None}
+            # "rank_zhiyun_coll": {"pip_func": SinglePipeline, "process_func": RankProcessManage},
+            # "bank_coll": {"pip_func": OneMixPipeline, "process_func": BankInfoProcessManage},
+            # "network_index_coll": {"pip_func": SinglePipeline, "process_func": None},
+            # "new_car_release_coll": {"pip_func": SinglePipeline, "process_func": None},
+            # "auto_news_coll": {"pip_func": SinglePipeline, "process_func": None},
             # "sale_coll": {"pip_func": None, "process_func": None},
             # "dealer_coll": {"pip_func": None, "process_func": None},
             # "complain_coll": {"pip_func": None, "process_func": None},
