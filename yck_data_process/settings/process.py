@@ -41,7 +41,7 @@ DATA_PROCESS_SETTING = {
         "input_func": MongodbSource,
         "update_is_process": True,
         "coll_setting": {
-            "model_coll": {"pip_func": OneMixPipeline, "process_func": ModelProcessManage},
+            # "model_coll": {"pip_func": OneMixPipeline, "process_func": ModelProcessManage},
             # "setting_coll": {"pip_func": OneMixPipeline, "process_func": SettingProcessManage},
             # "used_car_pub_coll": {"pip_func": SinglePipeline, "process_func": UsedCarProcessManage},
             # "rank_zhiyun_coll": {"pip_func": SinglePipeline, "process_func": RankProcessManage},
@@ -49,6 +49,8 @@ DATA_PROCESS_SETTING = {
             # "network_index_coll": {"pip_func": SinglePipeline, "process_func": None},
             # "new_car_release_coll": {"pip_func": SinglePipeline, "process_func": None},
             # "auto_news_coll": {"pip_func": SinglePipeline, "process_func": None},
+            # "xianqian_coll": {"pip_func": SinglePipeline, "process_func": None},
+            "area_coll": {"pip_func": SinglePipeline, "process_func": None},
             # "sale_coll": {"pip_func": None, "process_func": None},
             # "dealer_coll": {"pip_func": None, "process_func": None},
             # "complain_coll": {"pip_func": None, "process_func": None},
